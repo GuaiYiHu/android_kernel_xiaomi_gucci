@@ -1,22 +1,7 @@
 /*
- * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
- *
- * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
- *
- *
- * Permission to use, copy, modify, and/or distribute this software for
- * any purpose with or without fee is hereby granted, provided that the
- * above copyright notice and this permission notice appear in all
- * copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
- * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
- * AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
- * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * Copyright (C) 2011-2012 Qualcomm Atheros, Inc. All Rights Reserved.
+ * Qualcomm Atheros Confidential and Proprietary.
+ * Copyright (C) 2007-2009 QUALCOMM Incorporated. All rights reserved. Proprietary and Confidential.
  */
 
 /*
@@ -358,6 +343,7 @@
 #define WNI_CFG_TDLS_OFF_CHANNEL_ENABLED    323
 #define WNI_CFG_PMF_SA_QUERY_MAX_RETRIES    324
 #define WNI_CFG_PMF_SA_QUERY_RETRY_INTERVAL    325
+#define WNI_CFG_BTC_CTS2S_DURING_SCO    326
 
 /*
  * String parameter lengths 
@@ -1744,11 +1730,14 @@
 #define WNI_CFG_PMF_SA_QUERY_RETRY_INTERVAL_STAMAX    2000
 #define WNI_CFG_PMF_SA_QUERY_RETRY_INTERVAL_STADEF    200
 
-#define CFG_PARAM_MAX_NUM        326
-#define CFG_STA_IBUF_MAX_SIZE    260
+#define WNI_CFG_BTC_CTS2S_DURING_SCO_STAMIN    0
+#define WNI_CFG_BTC_CTS2S_DURING_SCO_STAMAX    1
+#define WNI_CFG_BTC_CTS2S_DURING_SCO_STADEF    0
+
+#define CFG_PARAM_MAX_NUM        327
+#define CFG_STA_IBUF_MAX_SIZE    261
 #define CFG_STA_SBUF_MAX_SIZE    3388
 #define CFG_SEM_MAX_NUM          19
-
 #define CFG_STA_MAGIC_DWORD    0xbeefbeef
 
 
