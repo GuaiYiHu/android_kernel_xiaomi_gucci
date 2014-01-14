@@ -2140,6 +2140,9 @@ This feature requires the dependent cfg.ini "gRoamPrefer5GHz" set to 1 */
 #define CFG_DEFER_IMPS_FOR_TIME_DEFAULT                      (200)
 
 
+#define CFG_OVERRIDE_COUNTRY_CODE                "gStaCountryCode"
+#define CFG_OVERRIDE_COUNTRY_CODE_DEFAULT        "000"
+
 /*--------------------------------------------------------------------------- 
   Type declarations
   -------------------------------------------------------------------------*/ 
@@ -2585,6 +2588,7 @@ typedef struct
 #endif
    v_BOOL_t                    initialScanSkipDFSCh;
    v_U32_t                     deferImpsTime;
+   char                        overrideCountryCode[4];
 } hdd_config_t;
 /*--------------------------------------------------------------------------- 
   Function declarations and documenation
