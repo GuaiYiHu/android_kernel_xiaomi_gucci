@@ -173,7 +173,12 @@ static placeHolderInCapBitmap supportEnabledFeatures[] =
 #else
     ,FEATURE_NOT_SUPPORTED          //29
 #endif
-   };
+    ,FEATURE_NOT_SUPPORTED          //30
+    ,FEATURE_NOT_SUPPORTED          //31
+    ,FEATURE_NOT_SUPPORTED          //32
+    ,FEATURE_NOT_SUPPORTED          //33
+    ,HT40_OBSS_SCAN                 //34
+};
 
 /*-------------------------------------------------------------------------- 
    WLAN DAL  State Machine
@@ -1181,6 +1186,11 @@ void WDI_TraceHostFWCapabilities(tANI_U32 *capabilityBitmap)
                                               sizeof("EXTENDED_NSOFFLOAD_SLOT"),
                                               "%s", "EXTENDED_NSOFFLOAD_SLOT");
                           pCapStr += strlen("EXTENDED_NSOFFLOAD_SLOT");
+                          break;
+                     case HT40_OBSS_SCAN:
+                          snprintf(pCapStr, sizeof("HT40_OBSS_SCAN"),
+                                   "%s", "HT40_OBSS_SCAN");
+                          pCapStr += strlen("HT40_OBSS_SCAN");
                           break;
               }
               *pCapStr++ = ',';
