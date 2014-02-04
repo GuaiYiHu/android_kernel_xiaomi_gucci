@@ -2922,6 +2922,12 @@ eHalStatus pmcSetPreferredNetworkList
     tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, sessionId );
     tANI_U8 ucDot11Mode;
 
+    if (NULL == pSession)
+    {
+        VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
+                  "%s: pSession is NULL", __func__);
+        return eHAL_STATUS_FAILURE;
+    }
     VOS_TRACE( VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_INFO,
                "%s: SSID = 0x%08lx%08lx%08lx%08lx%08lx%08lx%08lx%08lx, "
                "0x%08lx%08lx%08lx%08lx%08lx%08lx%08lx%08lx", __func__,
