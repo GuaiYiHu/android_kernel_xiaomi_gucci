@@ -1113,18 +1113,20 @@ static char *WDI_getRespMsgString(wpt_uint16 wdiRespMsgId)
 /**
   @brief WDI_TraceHostFWCapabilities - Parses both host and Firmware
                                          Capability bitmap array.
-  @param capabilityBitmap - Base address of Bitmap array
+  @param capabilityBitmap - Base address of a 4 element Bitmap array
+                                               of type tANI_U32.
   @see
   @returns  None
   */
 void WDI_TraceHostFWCapabilities(tANI_U32 *capabilityBitmap)
 {
-     int i;
+     int i,j;
      char capStr[512];
      char *pCapStr = capStr;
-     for (i = 0; i < 32; i++) {
-          if ((*(capabilityBitmap + 0) & (1 << i))) {
-               switch(i) {
+     for (j = 0; j < 4; j++) {
+         for (i = 0; i < 32; i++) {
+             if ((*(capabilityBitmap + j) & (1 << i))) {
+                 switch(i + (j * 32)) {
                      case MCC: snprintf(pCapStr, sizeof("MCC"), "%s", "MCC");
                           pCapStr += strlen("MCC");
                           break;
@@ -1207,9 +1209,10 @@ void WDI_TraceHostFWCapabilities(tANI_U32 *capabilityBitmap)
                      case FW_IN_TX_PATH: snprintf(pCapStr, sizeof("FW_IN_TX_PATH"), "%s", "FW_IN_TX_PATH");
                           pCapStr += strlen("FW_IN_TX_PATH");
                           break;
-              }
-              *pCapStr++ = ',';
-              *pCapStr++ = ' ';
+                 }
+                 *pCapStr++ = ',';
+                 *pCapStr++ = ' ';
+             }
          }
      }
      pCapStr -= 2;
