@@ -2143,6 +2143,11 @@ This feature requires the dependent cfg.ini "gRoamPrefer5GHz" set to 1 */
 #define CFG_OVERRIDE_COUNTRY_CODE                "gStaCountryCode"
 #define CFG_OVERRIDE_COUNTRY_CODE_DEFAULT        "000"
 
+#define CFG_ADVERTISE_CONCURRENT_OPERATION_NAME    "gAdvertiseConcurrentOperation"
+#define CFG_ADVERTISE_CONCURRENT_OPERATION_DEFAULT ( 1 )
+#define CFG_ADVERTISE_CONCURRENT_OPERATION_MIN     ( 0 )
+#define CFG_ADVERTISE_CONCURRENT_OPERATION_MAX     ( 1 )
+
 /*--------------------------------------------------------------------------- 
   Type declarations
   -------------------------------------------------------------------------*/ 
@@ -2589,6 +2594,7 @@ typedef struct
    v_BOOL_t                    initialScanSkipDFSCh;
    v_U32_t                     deferImpsTime;
    char                        overrideCountryCode[4];
+   v_BOOL_t                    advertiseConcurrentOperation;
 } hdd_config_t;
 /*--------------------------------------------------------------------------- 
   Function declarations and documenation

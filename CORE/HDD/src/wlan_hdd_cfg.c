@@ -2983,6 +2983,14 @@ REG_VARIABLE( CFG_TDLS_EXTERNAL_CONTROL, WLAN_PARAM_Integer,
                 hdd_config_t, overrideCountryCode,
                 VAR_FLAGS_OPTIONAL,
                (void *)CFG_OVERRIDE_COUNTRY_CODE_DEFAULT),
+
+   REG_VARIABLE( CFG_ADVERTISE_CONCURRENT_OPERATION_NAME , WLAN_PARAM_Integer,
+                 hdd_config_t, advertiseConcurrentOperation,
+                 VAR_FLAGS_OPTIONAL,
+                 CFG_ADVERTISE_CONCURRENT_OPERATION_DEFAULT,
+                 CFG_ADVERTISE_CONCURRENT_OPERATION_MIN,
+                 CFG_ADVERTISE_CONCURRENT_OPERATION_MAX ),
+
 };
 
 
