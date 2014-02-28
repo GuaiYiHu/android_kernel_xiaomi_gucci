@@ -39,6 +39,7 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 /*
  * Airgo Networks, Inc proprietary. All rights reserved.
  * This file limUtils.cc contains the utility functions
@@ -105,6 +106,11 @@ static const tANI_U8 aUnsortedChannelList[]= {52,56,60,64,100,104,108,112,116,
 #define SUCCESS 1                   //defined temporarily for BT-AMP
 
 #define MAX_BA_WINDOW_SIZE_FOR_CISCO 25
+
+static void
+limProcessChannelSwitchSuspendLink(tpAniSirGlobal pMac,
+                                    eHalStatus status,
+                                    tANI_U32 *ctx);
 /** -------------------------------------------------------------
 \fn limAssignDialogueToken
 \brief Assigns dialogue token.
@@ -2596,9 +2602,21 @@ void limProcessChannelSwitchTimeout(tpAniSirGlobal pMac)
     switch(psessionEntry->gLimChannelSwitch.state)
     {
         case eLIM_CHANNEL_SWITCH_PRIMARY_ONLY:
-            PELOGW(limLog(pMac, LOGW, FL("CHANNEL_SWITCH_PRIMARY_ONLY "));)
-            limSwitchPrimaryChannel(pMac, psessionEntry->gLimChannelSwitch.primaryChannel,psessionEntry);
-            psessionEntry->gLimChannelSwitch.state = eLIM_CHANNEL_SWITCH_IDLE;
+        case eLIM_CHANNEL_SWITCH_PRIMARY_AND_SECONDARY:
+            if ( isLimSessionOffChannel(pMac,
+                pMac->lim.limTimers.gLimChannelSwitchTimer.sessionId) )
+            {
+                limSuspendLink(pMac,
+                    eSIR_DONT_CHECK_LINK_TRAFFIC_BEFORE_SCAN,
+                    limProcessChannelSwitchSuspendLink,
+                    (tANI_U32*)psessionEntry );
+            }
+            else
+            {
+                limProcessChannelSwitchSuspendLink(pMac,
+                    eHAL_STATUS_SUCCESS,
+                    (tANI_U32*)psessionEntry);
+            }
             break;
 
         case eLIM_CHANNEL_SWITCH_SECONDARY_ONLY:
@@ -2608,15 +2626,6 @@ void limProcessChannelSwitchTimeout(tpAniSirGlobal pMac)
                                              psessionEntry->gLimChannelSwitch.secondarySubBand);
             psessionEntry->gLimChannelSwitch.state = eLIM_CHANNEL_SWITCH_IDLE;
             break;
-
-        case eLIM_CHANNEL_SWITCH_PRIMARY_AND_SECONDARY:
-            PELOGW(limLog(pMac, LOGW, FL("CHANNEL_SWITCH_PRIMARY_AND_SECONDARY"));)
-            limSwitchPrimarySecondaryChannel(pMac, psessionEntry,
-                                             psessionEntry->gLimChannelSwitch.primaryChannel,
-                                             psessionEntry->gLimChannelSwitch.secondarySubBand);
-            psessionEntry->gLimChannelSwitch.state = eLIM_CHANNEL_SWITCH_IDLE;
-            break;
-
         case eLIM_CHANNEL_SWITCH_IDLE:
         default:
             PELOGE(limLog(pMac, LOGE, FL("incorrect state "));)
@@ -2730,6 +2739,8 @@ limUpdateChannelSwitch(struct sAniSirGlobal *pMac,  tpSirProbeRespBeacon pBeacon
             }
         }
      }
+
+
     if (eSIR_SUCCESS != limStartChannelSwitch(pMac, psessionEntry))
     {
         PELOGW(limLog(pMac, LOGW, FL("Could not start Channel Switch"));)
@@ -8056,4 +8067,70 @@ void limInitOBSSScanParams(tpAniSirGlobal pMac,
     }
     psessionEntry->obssHT40ScanParam.OBSSScanActivityThreshold = cfgValue;
 
+}
+
+/** ---------------------------------------------------------
+\fn  limProcessChannelSwitchSuspendLink
+\brief   This function call channel switch functions based on
+         the gLimChannelSwitch.state. After function return it
+         reset the state to eLIM_CHANNEL_SWITCH_IDLE.
+         If gLimChannelSwitch.state is non-identified then
+         print error log as well as restore back the
+         pre-channelSwitch.
+\param   tpAniSirGlobal  pMac
+\param   eHalStatus   status
+\param   tANI_U32        *ctx
+\return  None
+ ------------------------------------------------------------*/
+static void
+limProcessChannelSwitchSuspendLink(tpAniSirGlobal pMac,
+                                    eHalStatus status,
+                                    tANI_U32 *ctx)
+{
+    tpPESession         pSessionEntry = (tpPESession)ctx;
+
+    if ( eHAL_STATUS_SUCCESS != status )
+    {
+        limLog(pMac, LOGE,
+            FL("Suspend link failed. still proceeding "));
+    }
+    if (NULL == pSessionEntry )
+    {
+        limLog(pMac, LOGE, FL("pSessionEntry is null pointer "));
+        return;
+    }
+
+    switch(pSessionEntry->gLimChannelSwitch.state)
+    {
+        case eLIM_CHANNEL_SWITCH_PRIMARY_ONLY:
+            PELOGW(limLog(pMac, LOGW,
+                FL("CHANNEL_SWITCH_PRIMARY_ONLY "));)
+            limSwitchPrimaryChannel(pMac,
+                pSessionEntry->gLimChannelSwitch.primaryChannel,
+                pSessionEntry);
+            pSessionEntry->gLimChannelSwitch.state =
+                eLIM_CHANNEL_SWITCH_IDLE;
+            break;
+
+        case eLIM_CHANNEL_SWITCH_PRIMARY_AND_SECONDARY:
+            PELOGW(limLog(pMac, LOGW,
+                FL("CHANNEL_SWITCH_PRIMARY_AND_SECONDARY"));)
+            limSwitchPrimarySecondaryChannel(pMac, pSessionEntry,
+                 pSessionEntry->gLimChannelSwitch.primaryChannel,
+                 pSessionEntry->gLimChannelSwitch.secondarySubBand);
+            pSessionEntry->gLimChannelSwitch.state =
+                eLIM_CHANNEL_SWITCH_IDLE;
+            break;
+
+        default:
+            PELOGE(limLog(pMac, LOGW, FL("incorrect state %d"),
+                   pSessionEntry->gLimChannelSwitch.state);)
+            if (limRestorePreChannelSwitchState(pMac,
+                pSessionEntry) != eSIR_SUCCESS)
+            {
+                limLog(pMac, LOGE,
+                    FL("Could not restore pre-channelSwitch "
+                    "(11h) state, resetting the system"));
+            }
+    }
 }
