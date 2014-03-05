@@ -60,26 +60,28 @@ when           who        what, where, why
  * If official msmreg.h integrated, this part will be eliminated */
 /* Start with base address */
 
+#ifdef PAL_OS_TYPE_BMP
+#define WLANDXE_WCNSS_BASE_ADDRESS        0xCDD00000
+#else
 #ifdef WCN_PRONTO
-#define WLANDXE_CCU_DXE_INT_SELECT       0xfb2050dc
-#define WLANDXE_CCU_DXE_INT_SELECT_STAT  0xfb2050e0
-#define WLANDXE_CCU_ASIC_INT_ENABLE      0xfb2050e4
-#define WLANDXE_CCU_SOFT_RESET           0xfb204010
+#define WLANDXE_WCNSS_BASE_ADDRESS        0x0a000000
+#else
+#define WLANDXE_WCNSS_BASE_ADDRESS        0x03000000
+#endif
+#endif /* PAL_OS_TYPE_BMP */
+
+
+#ifdef WCN_PRONTO
+#define WLANDXE_CCU_DXE_INT_SELECT       (WLANDXE_WCNSS_BASE_ADDRESS + 0x2050dc) //0xfb2050dc
+#define WLANDXE_CCU_DXE_INT_SELECT_STAT  (WLANDXE_WCNSS_BASE_ADDRESS + 0x2050e0) //0xfb2050e0
+#define WLANDXE_CCU_ASIC_INT_ENABLE      (WLANDXE_WCNSS_BASE_ADDRESS + 0x2050e4)// xfb2050e4
+#define WLANDXE_CCU_SOFT_RESET           (WLANDXE_WCNSS_BASE_ADDRESS + 0x204010) //0xfb204010
 #else
 #define WLANDXE_CCU_DXE_INT_SELECT       0x03200b10
 #define WLANDXE_CCU_DXE_INT_SELECT_STAT  0x03200b14
 #define WLANDXE_CCU_ASIC_INT_ENABLE      0x03200b18
 #endif
 
-#ifdef PAL_OS_TYPE_BMP
-#define WLANDXE_WCNSS_BASE_ADDRESS        0xCDD00000
-#else
-#ifdef WCN_PRONTO
-#define WLANDXE_WCNSS_BASE_ADDRESS        0xfb000000
-#else
-#define WLANDXE_WCNSS_BASE_ADDRESS        0x03000000
-#endif
-#endif /* PAL_OS_TYPE_BMP */
 
 #define WLANDXE_BMU_AVAILABLE_BD_PDU     (WLANDXE_WCNSS_BASE_ADDRESS + 0x80084)
 

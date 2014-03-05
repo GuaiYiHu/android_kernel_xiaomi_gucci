@@ -3582,7 +3582,7 @@ static VOS_STATUS wlan_ftm_priv_enable_dpd(hdd_adapter_t *pAdapter,
     }
 
 #ifdef WCN_PRONTO
-    reg_addr = 0xfb018000;
+    reg_addr = 0x0a018000;
 #else
     reg_addr = 0x03018000;
 #endif
