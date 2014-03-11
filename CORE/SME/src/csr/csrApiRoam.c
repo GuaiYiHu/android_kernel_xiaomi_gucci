@@ -1836,6 +1836,7 @@ eHalStatus csrChangeDefaultConfigParam(tpAniSirGlobal pMac, tCsrConfigParam *pPa
 
         pMac->roam.configParam.isAmsduSupportInAMPDU = pParam->isAmsduSupportInAMPDU;
         pMac->roam.configParam.nSelect5GHzMargin = pParam->nSelect5GHzMargin;
+        pMac->roam.configParam.allowDFSChannelRoam = pParam->allowDFSChannelRoam;
     }
     
     return status;
@@ -1962,7 +1963,8 @@ eHalStatus csrGetConfigParam(tpAniSirGlobal pMac, tCsrConfigParam *pParam)
 
         pParam->isAmsduSupportInAMPDU = pMac->roam.configParam.isAmsduSupportInAMPDU;
         pParam->nSelect5GHzMargin = pMac->roam.configParam.nSelect5GHzMargin;
-
+        pParam->allowDFSChannelRoam =
+                                    pMac->roam.configParam.allowDFSChannelRoam;
         csrSetChannels(pMac, pParam);
 
         status = eHAL_STATUS_SUCCESS;
@@ -15778,7 +15780,9 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 command, tANI_U8 reas
           ChannelList = pMac->scan.occupiedChannels.channelList;
           for(i=0; i<pMac->scan.occupiedChannels.numChannels; i++)
           {
-             if(!CSR_IS_CHANNEL_DFS(*ChannelList) &&
+             /*Allow DFS channels only if the DFS channel roam flag is enabled */
+             if(((pMac->roam.configParam.allowDFSChannelRoam) ||
+                (!CSR_IS_CHANNEL_DFS(*ChannelList))) &&
                 *ChannelList && (num_channels < SIR_ROAM_MAX_CHANNELS))
              {
                 pRequestBuf->ConnectedNetwork.ChannelCache[num_channels++] = *ChannelList;
@@ -15810,7 +15814,8 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 command, tANI_U8 reas
           ChannelList = currChannelListInfo->ChannelList;
           for (i=0;i<currChannelListInfo->numOfChannels;i++)
           {
-           if(!CSR_IS_CHANNEL_DFS(*ChannelList) && *ChannelList)
+           if(((pMac->roam.configParam.allowDFSChannelRoam) ||
+                (!CSR_IS_CHANNEL_DFS(*ChannelList))) && *ChannelList)
            {
             pRequestBuf->ConnectedNetwork.ChannelCache[num_channels++] = *ChannelList;
            }
@@ -15857,7 +15862,8 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 command, tANI_U8 reas
     }
     for(i=0; i<pMac->roam.numValidChannels; i++)
     {
-        if(!CSR_IS_CHANNEL_DFS(*ChannelList) && *ChannelList)
+        if(((pMac->roam.configParam.allowDFSChannelRoam) ||
+            (!CSR_IS_CHANNEL_DFS(*ChannelList))) && *ChannelList)
         {
             pRequestBuf->ValidChannelList[num_channels++] = *ChannelList;
         }
