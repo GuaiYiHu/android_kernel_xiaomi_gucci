@@ -1005,17 +1005,17 @@ typedef enum
 #define CFG_REORDER_TIME_BK_NAME                           "BkReorderTime"
 #define CFG_REORDER_TIME_BK_MIN                            30
 #define CFG_REORDER_TIME_BK_MAX                            1000
-#define CFG_REORDER_TIME_BK_DEFAULT                        300
+#define CFG_REORDER_TIME_BK_DEFAULT                        100
 
 #define CFG_REORDER_TIME_BE_NAME                           "BeReorderTime"
 #define CFG_REORDER_TIME_BE_MIN                            30
 #define CFG_REORDER_TIME_BE_MAX                            1000
-#define CFG_REORDER_TIME_BE_DEFAULT                        300
+#define CFG_REORDER_TIME_BE_DEFAULT                        100
 
 #define CFG_REORDER_TIME_VI_NAME                           "ViReorderTime"
 #define CFG_REORDER_TIME_VI_MIN                            30
 #define CFG_REORDER_TIME_VI_MAX                            1000
-#define CFG_REORDER_TIME_VI_DEFAULT                        300
+#define CFG_REORDER_TIME_VI_DEFAULT                        100
 
 #define CFG_REORDER_TIME_VO_NAME                           "VoReorderTime"
 #define CFG_REORDER_TIME_VO_MIN                            30
@@ -1378,7 +1378,7 @@ typedef enum
 #define CFG_ENABLE_BYPASS_11D_NAME                 "gEnableBypass11d"
 #define CFG_ENABLE_BYPASS_11D_MIN                  ( 0 )
 #define CFG_ENABLE_BYPASS_11D_MAX                  ( 1 )
-#define CFG_ENABLE_BYPASS_11D_DEFAULT              ( 0 )
+#define CFG_ENABLE_BYPASS_11D_DEFAULT              ( 1 )
 
 #define CFG_ENABLE_DFS_CHNL_SCAN_NAME              "gEnableDFSChnlScan"
 #define CFG_ENABLE_DFS_CHNL_SCAN_MIN               ( 0 )
