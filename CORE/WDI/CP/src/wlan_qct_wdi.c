@@ -877,9 +877,6 @@ WDI_SetPowerStateCb
    void      *pContext
 );
 
-#define CASE_RETURN_STRING( str )           \
-    case ( ( str ) ): return( #str ); break \
-
 /**
  @brief WDI_getReqMsgString prints the WDI request message in string.
 
@@ -21279,12 +21276,11 @@ WDI_ResponseTimerCB
        return;
     }
 #ifndef WDI_RE_ENABLE_WIFI_ON_WDI_TIMEOUT
-   if(wpalIsWDresetInProgress())
-   {
-       wpalDevicePanic();
-   }
-
     wpalWcnssResetIntr();
+    if(wpalIsWDresetInProgress())
+    {
+        wpalDevicePanic();
+    }
     /* if this timer fires, it means Riva did not receive the FIQ */
     wpalTimerStart(&pWDICtx->ssrTimer, WDI_SSR_TIMEOUT);
 #else

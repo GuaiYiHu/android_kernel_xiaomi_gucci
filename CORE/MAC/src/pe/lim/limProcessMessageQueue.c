@@ -478,10 +478,8 @@ limCheckMgmtRegisteredFrames(tpAniSirGlobal pMac, tANI_U8 *pBd,
                 FL("rcvd frame match with registered frame params"));
 
         /* Indicate this to SME */
-        limSendSmeMgmtFrameInd( pMac, pHdr->fc.subType, (tANI_U8*)pHdr,
-                     WDA_GET_RX_PAYLOAD_LEN(pBd) + sizeof(tSirMacMgmtHdr),
-                     pLimMgmtRegistration->sessionId,
-                     WDA_GET_RX_CH(pBd), psessionEntry, 0);
+        limSendSmeMgmtFrameInd( pMac, pLimMgmtRegistration->sessionId,
+                                pBd, psessionEntry, 0);
 
         if ( (type == SIR_MAC_MGMT_FRAME) && (fc.type == SIR_MAC_MGMT_FRAME)
               && (subType == SIR_MAC_MGMT_RESERVED15) )
@@ -634,6 +632,9 @@ limHandle80211Frames(tpAniSirGlobal pMac, tpSirMsgQ limMsg, tANI_U8 *pDeferMsg)
                limPktFree(pMac, HAL_TXRX_FRM_802_11_MGMT, pRxPacketInfo, limMsg->bodyptr);
                return;
             }
+            else
+               limLog(pMac,LOG1,"SessionId:%d Session Exist for given Bssid",
+                       psessionEntry->peSessionId);
         }
         //  For p2p resp frames search for valid session with DA as
         //  BSSID will be SA and session will be present with DA only
