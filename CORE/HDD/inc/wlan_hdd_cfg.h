@@ -1444,6 +1444,21 @@ typedef enum
 #define CFG_ENABLE_SSR_MAX                  ( 1 )
 #define CFG_ENABLE_SSR_DEFAULT              ( 1 )
 
+#define CFG_OBSS_HT40_SCAN_ACTIVE_DWELL_TIME_NAME                "gObssScanActiveDwellTime"
+#define CFG_OBSS_HT40_SCAN_ACTIVE_DWELL_TIME_MIN                 ( 5 )
+#define CFG_OBSS_HT40_SCAN_ACTIVE_DWELL_TIME_MAX                 ( 1000 )
+#define CFG_OBSS_HT40_SCAN_ACTIVE_DWELL_TIME_DEFAULT             ( 10 )
+
+#define CFG_OBSS_HT40_SCAN_PASSIVE_DWELL_TIME_NAME                "gObssScanPassiveDwellTime"
+#define CFG_OBSS_HT40_SCAN_PASSIVE_DWELL_TIME_MIN                 ( 10 )
+#define CFG_OBSS_HT40_SCAN_PASSIVE_DWELL_TIME_MAX                 ( 1000 )
+#define CFG_OBSS_HT40_SCAN_PASSIVE_DWELL_TIME_DEFAULT             ( 20 )
+
+#define CFG_OBSS_HT40_SCAN_WIDTH_TRIGGER_INTERVAL_NAME            "gObssScanWidthTriggerInterval"
+#define CFG_OBSS_HT40_SCAN_WIDTH_TRIGGER_INTERVAL_MIN             ( 10 )
+#define CFG_OBSS_HT40_SCAN_WIDTH_TRIGGER_INTERVAL_MAX             ( 900 )
+#define CFG_OBSS_HT40_SCAN_WIDTH_TRIGGER_INTERVAL_DEFAULT         ( 200 )
+
 /*
  * VOS Trace Enable Control
  * Notes:
@@ -2446,6 +2461,9 @@ typedef struct
    v_BOOL_t                    gEnableStrictRegulatoryForFCC;
    v_BOOL_t                    cfgRAFilterEnable;
    v_U16_t                     cfgRARateLimitInterval;
+   v_U16_t                     nOBSSScanActiveDwellTime;
+   v_U16_t                     nOBSSScanPassiveDwellTime;
+   v_U16_t                     nOBSSScanWidthTriggerInterval;
 } hdd_config_t;
 /*--------------------------------------------------------------------------- 
   Function declarations and documenation
