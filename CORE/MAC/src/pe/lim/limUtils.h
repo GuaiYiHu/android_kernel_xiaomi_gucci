@@ -99,6 +99,18 @@ typedef struct sAddBaCandidate
     tAddBaInfo baInfo[STACFG_MAX_TC];
 }tAddBaCandidate, *tpAddBaCandidate;
 
+#ifdef WLAN_FEATURE_11W
+typedef union uPmfSaQueryTimerId
+{
+    struct
+    {
+        tANI_U8 sessionId;
+        tANI_U16 peerIdx;
+    } fields;
+    tANI_U32 value;
+} tPmfSaQueryTimerId, *tpPmfSaQueryTimerId;
+#endif
+
 // LIM utility functions
 void limGetBssidFromPkt(tpAniSirGlobal, tANI_U8 *, tANI_U8 *, tANI_U32 *);
 char * limMlmStateStr(tLimMlmStates state);
@@ -506,4 +518,9 @@ void limCleanUpDisassocDeauthReq(tpAniSirGlobal pMac, tANI_U8 *staMac, tANI_BOOL
 tANI_BOOLEAN limCheckDisassocDeauthAckPending(tpAniSirGlobal pMac, tANI_U8 *staMac);
 void limUpdateOBSSScanParams(tpPESession psessionEntry ,
              tDot11fIEOBSSScanParameters *pOBSSScanParameters);
+
+#ifdef WLAN_FEATURE_11W
+void limPmfSaQueryTimerHandler(void *pMacGlobal, tANI_U32 param);
+#endif
+
 #endif /* __LIM_UTILS_H */

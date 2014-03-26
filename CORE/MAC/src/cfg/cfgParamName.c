@@ -18,6 +18,7 @@
   * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
   * PERFORMANCE OF THIS SOFTWARE.
 */
+
 /*
  * DO NOT EDIT - This file is generated automatically
  */
@@ -351,6 +352,9 @@ unsigned char *gCfgParamName[] = {
     (unsigned char *)"OBSS_HT40_SCAN_ACTIVE_TOTAL_PER_CHANNEL",
     (unsigned char *)"OBSS_HT40_WIDTH_CHANNEL_TRANSITION_DELAY_FACTOR",
     (unsigned char *)"OBSS_HT40_SCAN_ACTIVITY_THRESHOLD",
+    (unsigned char *)"TDLS_OFF_CHANNEL_ENABLED",
+    (unsigned char *)"PMF_SA_QUERY_MAX_RETRIES",
+    (unsigned char *)"PMF_SA_QUERY_RETRY_INTERVAL",
 };
 
 
