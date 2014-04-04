@@ -21290,6 +21290,11 @@ WDI_ResponseTimerCB
        return;
     }
 #ifndef WDI_RE_ENABLE_WIFI_ON_WDI_TIMEOUT
+   if(wpalIsWDresetInProgress())
+   {
+       wpalDevicePanic();
+   }
+
     wpalWcnssResetIntr();
     if(wpalIsWDresetInProgress())
     {
