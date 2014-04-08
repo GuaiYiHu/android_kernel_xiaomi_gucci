@@ -56,9 +56,6 @@
   Are listed for each API below.
 
 
-  Copyright (c) 2008 QUALCOMM Incorporated.
-  All Rights Reserved.
-  Qualcomm Confidential and Proprietary
 ===========================================================================*/
 
 /*===========================================================================
@@ -174,7 +171,7 @@ static placeHolderInCapBitmap supportEnabledFeatures[] =
     ,FEATURE_NOT_SUPPORTED          //29
 #endif
     ,FEATURE_NOT_SUPPORTED          //30
-    ,FEATURE_NOT_SUPPORTED          //31
+    ,FW_IN_TX_PATH                  //31
     ,FEATURE_NOT_SUPPORTED          //32
     ,FEATURE_NOT_SUPPORTED          //33
     ,HT40_OBSS_SCAN                 //34
@@ -1195,6 +1192,9 @@ void WDI_TraceHostFWCapabilities(tANI_U32 *capabilityBitmap)
                           snprintf(pCapStr, sizeof("HT40_OBSS_SCAN"),
                                    "%s", "HT40_OBSS_SCAN");
                           pCapStr += strlen("HT40_OBSS_SCAN");
+                          break;
+                     case FW_IN_TX_PATH: snprintf(pCapStr, sizeof("FW_IN_TX_PATH"), "%s", "FW_IN_TX_PATH");
+                          pCapStr += strlen("FW_IN_TX_PATH");
                           break;
               }
               *pCapStr++ = ',';
