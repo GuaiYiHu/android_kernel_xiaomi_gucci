@@ -114,6 +114,7 @@
 #include "qc_sap_ioctl.h"
 #include "sme_Api.h"
 #include "vos_trace.h"
+#include "wlan_hdd_assoc.h"
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
 extern void hdd_suspend_wlan(struct early_suspend *wlan_suspend);
@@ -7161,6 +7162,7 @@ int hdd_setBand_helper(struct net_device *dev, tANI_U8* ptr)
     hdd_context_t *pHddCtx = WLAN_HDD_GET_CTX(pAdapter);
     tANI_U8 band = 0;
     eCsrBand currBand = eCSR_BAND_MAX;
+    eCsrBand connectedBand;
 
     band = ptr[WLAN_HDD_UI_SET_BAND_VALUE_OFFSET] - '0'; /*convert the band value from ascii to integer*/
 
@@ -7178,6 +7180,8 @@ int hdd_setBand_helper(struct net_device *dev, tANI_U8* ptr)
         default:
             band = eCSR_BAND_MAX;
     }
+    connectedBand =
+          hdd_connGetConnectedBand(WLAN_HDD_GET_STATION_CTX_PTR(pAdapter));
 
         VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO, "%s: change band to %u",
                 __func__, band);
@@ -7234,7 +7238,8 @@ int hdd_setBand_helper(struct net_device *dev, tANI_U8* ptr)
         sme_FilterScanResults(hHal, pAdapter->sessionId);
 
         if (band != eCSR_BAND_ALL &&
-            hdd_connIsConnected(WLAN_HDD_GET_STATION_CTX_PTR(pAdapter)))
+            hdd_connIsConnected(WLAN_HDD_GET_STATION_CTX_PTR(pAdapter)) &&
+            (connectedBand != band))
         {
              hdd_station_ctx_t *pHddStaCtx = &(pAdapter)->sessionCtx.station;
              eHalStatus status = eHAL_STATUS_SUCCESS;
