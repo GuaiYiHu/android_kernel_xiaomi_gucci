@@ -9680,7 +9680,7 @@ void csrRoamCheckForLinkStatusChange( tpAniSirGlobal pMac, tSirSmeRsp *pSirMsg )
                     pCommand = GET_BASE_ADDR( pEntry, tSmeCmd, Link );
                     if ( eSmeCommandSetKey == pCommand->command )
                     {                
-                        sessionId = pCommand->sessionId;        
+                        sessionId = pCommand->sessionId;
                         pSession = CSR_GET_SESSION( pMac, sessionId );
 
                         if(!pSession)
@@ -9748,7 +9748,7 @@ void csrRoamCheckForLinkStatusChange( tpAniSirGlobal pMac, tSirSmeRsp *pSirMsg )
                                        status = palSendMBMessage(pMac->hHdd, pMsg ); 
                                     }
 #endif
-                   /* OBSS SCAN Indication will be sent to Firmware to start OBSS Scan */
+                         /* OBSS SCAN Indication will be sent to Firmware to start OBSS Scan */
                                     if( CSR_IS_CHANNEL_24GHZ(pSession->connectedProfile.operationChannel)
                                        && IS_HT40_OBSS_SCAN_FEATURE_ENABLE )
                                     {
@@ -9757,8 +9757,10 @@ void csrRoamCheckForLinkStatusChange( tpAniSirGlobal pMac, tSirSmeRsp *pSirMsg )
                                          pMsg->messageType =
                                            pal_cpu_to_be16((tANI_U16)eWNI_SME_HT40_OBSS_SCAN_IND);
                                          pMsg->length =
-                                          pal_cpu_to_be16(sizeof( tANI_U8));
-                                         pMsg->seesionId = sessionId;
+                                          pal_cpu_to_be16(sizeof( tSirSmeHT40OBSSScanInd));
+                                         vos_mem_copy(pMsg->peerMacAddr,
+                                                       pSession->connectedProfile.bssid,
+                                                       sizeof(tSirMacAddr));
                                          status = palSendMBMessage(pMac->hHdd,
                                                                      pMsg );
                                     }
@@ -9768,7 +9770,7 @@ void csrRoamCheckForLinkStatusChange( tpAniSirGlobal pMac, tSirSmeRsp *pSirMsg )
                                 {
                                     result = eCSR_ROAM_RESULT_NONE;
                                 }
-                            pRoamInfo = &roamInfo;
+                                pRoamInfo = &roamInfo;
                         }
                         else
                         {
