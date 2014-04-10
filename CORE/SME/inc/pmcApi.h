@@ -76,8 +76,6 @@
 #define PMC_IS_CHIP_ACCESSIBLE(pmcState) ( (IMPS != (pmcState)) && (REQUEST_IMPS != (pmcState)) && \
        (STANDBY != (pmcState)) && (REQUEST_STANDBY != (pmcState)) )
 
-
-
 /* Power events that are signaled to PMC. */
 
 typedef enum ePmcPowerEvent
@@ -197,7 +195,6 @@ typedef enum ePmcState
 
 } tPmcState;
 
-
 /* Which beacons should be forwarded to the host. */
 
 typedef enum ePmcBeaconsToForward
@@ -313,7 +310,6 @@ typedef struct sPmcSmpsConfigParams
 
 
 /* Routine definitions. */
-
 extern eHalStatus pmcOpen (tHalHandle hHal);
 
 extern eHalStatus pmcStart (tHalHandle hHal);
