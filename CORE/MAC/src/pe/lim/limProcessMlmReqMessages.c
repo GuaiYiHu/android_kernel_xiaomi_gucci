@@ -433,6 +433,13 @@ void limContinuePostChannelScan(tpAniSirGlobal pMac)
     }
 
     channelNum = limGetCurrentScanChannel(pMac);
+
+    if (channelNum == limGetCurrentOperatingChannel(pMac) &&
+           limIsconnectedOnDFSChannel(channelNum))
+    {
+        limCovertChannelScanType(pMac, channelNum, true);
+    }
+
     if ((pMac->lim.gpLimMlmScanReq->scanType == eSIR_ACTIVE_SCAN) &&
         (limActiveScanAllowed(pMac, channelNum)))
     {
