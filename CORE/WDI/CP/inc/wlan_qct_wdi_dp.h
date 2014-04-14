@@ -137,6 +137,8 @@ when        who    what, where, why
 #define WDI_RELIABLE_MCAST_REQUESTED_MASK 0x100
 #endif
 
+#define WDI_USE_BD_RATE_MASK              0x1000
+
 #define WDI_USE_FW_IN_TX_PATH             0x200 //bit 9 used to route the frames to Work Queue 5
 
 /*Macro for getting the size of the TX BD*/
