@@ -1179,6 +1179,9 @@ tSirRetStatus uMacPostCtrlMsg(void* pSirGlobal, tSirMbMsg* pMb);
 
 #define WDA_HT40_OBSS_SCAN_IND   SIR_HAL_HT40_OBSS_SCAN_IND
 #define WDA_HT40_OBSS_STOP_SCAN_IND SIR_HAL_HT40_OBSS_STOP_SCAN_IND
+
+#define WDA_RATE_UPDATE_IND         SIR_HAL_RATE_UPDATE_IND
+
 tSirRetStatus wdaPostCtrlMsg(tpAniSirGlobal pMac, tSirMsgQ *pMsg);
 
 eHalStatus WDA_SetRegDomain(void * clientCtxt, v_REGDOMAIN_t regId,
