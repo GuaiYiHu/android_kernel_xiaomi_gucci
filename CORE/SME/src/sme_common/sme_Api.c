@@ -1383,6 +1383,7 @@ eHalStatus sme_UpdateConfig(tHalHandle hHal, tpSmeConfigParams pSmeConfigParams)
                    "Could not pass on WNI_CFG_SCAN_IN_POWERSAVE to CCM");
        }
    }
+   pMac->fEnableDebugLog = pSmeConfigParams->fEnableDebugLog;
    return status;
 }
 
@@ -10331,4 +10332,12 @@ eHalStatus sme_AddChAvoidCallback
     return(status);
 }
 #endif /* FEATURE_WLAN_CH_AVOID */
+
+eHalStatus sme_UpdateConnectDebug(tHalHandle hHal, tANI_U32 set_value)
+{
+    eHalStatus status = eHAL_STATUS_SUCCESS;
+    tpAniSirGlobal pMac = PMAC_STRUCT(hHal);
+    pMac->fEnableDebugLog = set_value;
+    return (status);
+}
 
