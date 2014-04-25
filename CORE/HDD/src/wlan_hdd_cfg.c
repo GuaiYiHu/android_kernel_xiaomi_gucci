@@ -2854,6 +2854,7 @@ REG_VARIABLE( CFG_TDLS_EXTERNAL_CONTROL, WLAN_PARAM_Integer,
                 CFG_ENABLE_STRICT_REGULATORY_FOR_FCC_DEFAULT,
                 CFG_ENABLE_STRICT_REGULATORY_FOR_FCC_MIN,
                 CFG_ENABLE_STRICT_REGULATORY_FOR_FCC_MAX ),
+
    REG_VARIABLE(CFG_RA_FILTER_ENABLE_NAME, WLAN_PARAM_Integer,
                 hdd_config_t, cfgRAFilterEnable,
                 VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
@@ -2933,6 +2934,13 @@ REG_VARIABLE( CFG_TDLS_EXTERNAL_CONTROL, WLAN_PARAM_Integer,
               CFG_ENABLE_DEBUG_CONNECT_ISSUE_DEFAULT,
               CFG_ENABLE_DEBUG_CONNECT_ISSUE_MIN ,
               CFG_ENABLE_DEBUG_CONNECT_ISSUE_MAX),
+
+   REG_VARIABLE(CFG_CTS2S_DURING_BTC_SCO_NAME, WLAN_PARAM_Integer,
+                hdd_config_t, cfgBtcCTS2SduringSCO,
+                VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+                CFG_CTS2S_DURING_BTC_SCO_DEFAULT,
+                CFG_CTS2S_DURING_BTC_SCO_MIN,
+                CFG_CTS2S_DURING_BTC_SCO_MAX ),
 };
 
 /*
@@ -4584,6 +4592,14 @@ v_BOOL_t hdd_update_config_dat( hdd_context_t *pHddCtx )
       hddLog(LOGE, "Could not pass on WNI_CFG_RA_FILTER_ENABLE to CCM");
    }
 
+   if (ccmCfgSetInt(pHddCtx->hHal,
+                    WNI_CFG_BTC_CTS2S_DURING_SCO,
+                    pConfig->cfgBtcCTS2SduringSCO,
+                    NULL, eANI_BOOLEAN_FALSE) == eHAL_STATUS_FAILURE)
+   {
+       fStatus = FALSE;
+       hddLog(LOGE, "Could not pass on WNI_CFG_BTC_CTS2S_DURING_SCO to CCM");
+   }
    return fStatus;
 }
 
