@@ -440,6 +440,10 @@ typedef enum
    /* 2G4 HT40 OBSS scan */
    WLAN_HAL_START_HT40_OBSS_SCAN_IND        = 254,
    WLAN_HAL_STOP_HT40_OBSS_SCAN_IND         = 255,
+
+   /* print register values */
+   WLAN_HAL_PRINT_REG_INFO_IND              = 259, /* Assigned same value that of Master one */
+
   WLAN_HAL_MSG_MAX = WLAN_HAL_MSG_TYPE_MAX_ENUM_SIZE
 }tHalHostMsgType;
 
@@ -7036,6 +7040,29 @@ typedef PACKED_PRE struct PACKED_POST
 #elif defined(__ANI_COMPILER_PRAGMA_PACK)
 #else
 #endif
+
+/*---------------------------------------------------------------------------
+ * WLAN_HAL_PRINT_REG_INFO_IND
+ *--------------------------------------------------------------------------*/
+
+typedef PACKED_PRE struct PACKED_POST
+{
+   uint32 regAddr;
+   uint32 regValue;
+} tHalRegDebugInfo, *tpRegDebugInfo;
+
+typedef PACKED_PRE struct PACKED_POST
+{
+   uint32 regCount;
+   uint32 scenario;
+   uint32 reasonCode;
+} tHalRegDebugInfoParams, *tpRegDebugInfoParams;
+
+typedef PACKED_PRE struct PACKED_POST
+{
+   tHalMsgHeader header;
+   tHalRegDebugInfoParams regParams;
+} tHalRegDebugInfoMsg, *tpRegDebugInfoMsg;
 
 #endif /* _WLAN_HAL_MSG_H_ */
 
