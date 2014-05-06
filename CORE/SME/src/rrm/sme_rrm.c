@@ -715,7 +715,6 @@ eHalStatus sme_RrmIssueScanReq( tpAniSirGlobal pMac )
        vos_mem_zero( &scanRequest, sizeof(scanRequest));
 
        /* set scanType, active or passive */
-       scanRequest.bcnRptReqScan = TRUE;
        scanRequest.scanType = scanType;
 
        vos_mem_copy(scanRequest.bssid,

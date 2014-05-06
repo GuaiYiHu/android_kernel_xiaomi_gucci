@@ -580,9 +580,7 @@ eHalStatus csrQueueScanRequest( tpAniSirGlobal pMac, tSmeCmd *pScanCmd )
             pChnInfo->ChannelList = &channelToScan[0];
 
             scanReq.BSSType = eCSR_BSS_TYPE_ANY;
-            //Modify callers parameters in case of concurrency
-            if (!pScanCmd->u.scanCmd.u.scanRequest.bcnRptReqScan)
-                scanReq.scanType = eSIR_ACTIVE_SCAN;
+
             //Use concurrency values for min/maxChnTime.
             //We know csrIsAnySessionConnected(pMac) returns TRUE here
             csrSetDefaultScanTiming(pMac, scanReq.scanType, &scanReq);
@@ -614,8 +612,7 @@ eHalStatus csrQueueScanRequest( tpAniSirGlobal pMac, tSmeCmd *pScanCmd )
             pSendScanCmd = pScanCmd;
             pSendScanCmd->u.scanCmd.u.scanRequest.ChannelInfo.numOfChannels = nNumChanCombinedConc;
             pSendScanCmd->u.scanCmd.u.scanRequest.BSSType = eCSR_BSS_TYPE_ANY;
-            if (!pSendScanCmd->u.scanCmd.u.scanRequest.bcnRptReqScan)
-                pSendScanCmd->u.scanCmd.u.scanRequest.scanType = eSIR_ACTIVE_SCAN;
+
             //Use concurrency values for min/maxChnTime.
             //We know csrIsAnySessionConnected(pMac) returns TRUE here
             csrSetDefaultScanTiming(pMac, pSendScanCmd->u.scanCmd.u.scanRequest.scanType, &pSendScanCmd->u.scanCmd.u.scanRequest);
@@ -623,8 +620,7 @@ eHalStatus csrQueueScanRequest( tpAniSirGlobal pMac, tSmeCmd *pScanCmd )
         } else {
             pSendScanCmd = pScanCmd;
             pSendScanCmd->u.scanCmd.u.scanRequest.BSSType = eCSR_BSS_TYPE_ANY;
-            if (!pSendScanCmd->u.scanCmd.u.scanRequest.bcnRptReqScan)
-                pSendScanCmd->u.scanCmd.u.scanRequest.scanType = eSIR_ACTIVE_SCAN;
+
             //Use concurrency values for min/maxChnTime.
             //We know csrIsAnySessionConnected(pMac) returns TRUE here
             csrSetDefaultScanTiming(pMac, pSendScanCmd->u.scanCmd.u.scanRequest.scanType, &pSendScanCmd->u.scanCmd.u.scanRequest);
@@ -889,13 +885,7 @@ eHalStatus csrScanRequest(tpAniSirGlobal pMac, tANI_U16 sessionId,
 
                         if ( csrIs11dSupported(pMac) )
                         {
-                            scanReq.bcnRptReqScan = pScanRequest->bcnRptReqScan;
-                            if (pScanRequest->bcnRptReqScan)
-                                scanReq.scanType = pScanRequest->scanType ?
-                                                   eSIR_PASSIVE_SCAN :
-                                                   pScanRequest->scanType;
-                            else
-                                scanReq.scanType = eSIR_PASSIVE_SCAN;
+                            scanReq.scanType = eSIR_PASSIVE_SCAN;
                             scanReq.requestType = eCSR_SCAN_REQUEST_11D_SCAN;
                             p11dScanCmd->u.scanCmd.reason = eCsrScan11d1;
                             scanReq.maxChnTime = pMac->roam.configParam.nPassiveMaxChnTime;
@@ -903,11 +893,7 @@ eHalStatus csrScanRequest(tpAniSirGlobal pMac, tANI_U16 sessionId,
                         }
                         else
                         {
-                            scanReq.bcnRptReqScan = pScanRequest->bcnRptReqScan;
-                            if (pScanRequest->bcnRptReqScan)
-                                scanReq.scanType = pScanRequest->scanType;
-                            else
-                                scanReq.scanType = eSIR_ACTIVE_SCAN;
+                            scanReq.scanType = pScanRequest->scanType;
                             scanReq.requestType = eCSR_SCAN_IDLE_MODE_SCAN;
                             p11dScanCmd->u.scanCmd.reason = eCsrScanIdleScan;
                             scanReq.maxChnTime = pMac->roam.configParam.nActiveMaxChnTime;
@@ -6334,8 +6320,7 @@ static void csrStaApConcTimerHandler(void *pv)
              pScanCmd->u.scanCmd.u.scanRequest.ChannelInfo.numOfChannels = numChn - nNumChanCombinedConc; //reduce outstanding # of channels to be scanned
 
              scanReq.BSSType = eCSR_BSS_TYPE_ANY;
-             //Modify callers parameters in case of concurrency
-             scanReq.scanType = eSIR_ACTIVE_SCAN;
+
              //Use concurrency values for min/maxChnTime. 
              //We know csrIsAnySessionConnected(pMac) returns TRUE here
              csrSetDefaultScanTiming(pMac, scanReq.scanType, &scanReq);
