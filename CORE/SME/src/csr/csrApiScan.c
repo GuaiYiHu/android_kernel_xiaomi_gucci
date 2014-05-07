@@ -7087,11 +7087,16 @@ eHalStatus csrScanForSSID(tpAniSirGlobal pMac, tANI_U32 sessionId, tCsrRoamProfi
                 smsLog(pMac, LOGE, FL("failed to allocate command buffer"));
                 break;
             }
-            palZeroMemory(pMac->hHdd, &pScanCmd->u.scanCmd, sizeof(tScanCmd));
-            status = palAllocateMemory(pMac->hHdd, (void **)&pScanCmd->u.scanCmd.pToRoamProfile, sizeof(tCsrRoamProfile));
-            if(!HAL_STATUS_SUCCESS(status))
-                break;
-            status = csrRoamCopyProfile(pMac, pScanCmd->u.scanCmd.pToRoamProfile, pProfile);
+            vos_mem_set(&pScanCmd->u.scanCmd, sizeof(tScanCmd), 0);
+            pScanCmd->u.scanCmd.pToRoamProfile = vos_mem_malloc(sizeof(tCsrRoamProfile));
+            if ( NULL == pScanCmd->u.scanCmd.pToRoamProfile )
+            {
+                status = eHAL_STATUS_FAILURE;
+            }
+            else
+            {
+                status = csrRoamCopyProfile(pMac, pScanCmd->u.scanCmd.pToRoamProfile, pProfile);
+            }
             if(!HAL_STATUS_SUCCESS(status))
                 break;
             pScanCmd->u.scanCmd.roamId = roamId;
