@@ -4069,8 +4069,9 @@ void limProcessFinishScanRsp(tpAniSirGlobal pMac,  void *body)
     vos_mem_free(body);
     body = NULL;
 
-    limLog(pMac, LOGW, FL("Rcvd FinishScanRsp in state %d"),
-                        pMac->lim.gLimHalScanState);
+    limLog(pMac, LOG1, FL("Rcvd FinishScanRsp in state %d channel %d "),
+                          pMac->lim.gLimHalScanState,
+                          pFinishScanParam->currentOperChannel);
 
     switch(pMac->lim.gLimHalScanState)
     {
