@@ -1819,6 +1819,11 @@ static __inline tANI_U32 defHddRateToDefCfgRate( tANI_U32 defRateIndex )
 #define CFG_TDLS_EXTERNAL_CONTROL_MIN               (0)
 #define CFG_TDLS_EXTERNAL_CONTROL_MAX               (1)
 #define CFG_TDLS_EXTERNAL_CONTROL_DEFAULT           (0)
+
+#define CFG_TDLS_WMM_MODE_ENABLE                     "gEnableTDLSWmmMode"
+#define CFG_TDLS_WMM_MODE_ENABLE_MIN                 (0)
+#define CFG_TDLS_WMM_MODE_ENABLE_MAX                 (1)
+#define CFG_TDLS_WMM_MODE_ENABLE_DEFAULT             (0)
 #endif
 
 #ifdef WLAN_ACTIVEMODE_OFFLOAD_FEATURE
@@ -2510,6 +2515,7 @@ typedef struct
    v_U32_t                     fTDLSPuapsdInactivityTimer;
    v_U32_t                     fTDLSRxFrameThreshold;
    v_BOOL_t                    fTDLSExternalControl;
+   v_U32_t                     fEnableTDLSWmmMode;
 #endif
    v_U32_t                     enableLpwrImgTransition;
 #ifdef WLAN_SOFTAP_VSTA_FEATURE
