@@ -96,10 +96,10 @@ typedef enum {
    BATCH_SCAN = 30,
 #endif
    FW_IN_TX_PATH = 31,
+   EXTENDED_NSOFFLOAD_SLOT = 32,
    HT40_OBSS_SCAN         = 34,
    UPDATE_CHANNEL_LIST = 35,
-
-   EXTENDED_NSOFFLOAD_SLOT = 32,
+   WLAN_MCADDR_FLT        = 36
    //MAX_FEATURE_SUPPORTED = 128
 } placeHolderInCapBitmap;
 
