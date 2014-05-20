@@ -2134,6 +2134,12 @@ This feature requires the dependent cfg.ini "gRoamPrefer5GHz" set to 1 */
 #define CFG_INITIAL_SCAN_SKIP_DFS_CH_MIN       (0)
 #define CFG_INITIAL_SCAN_SKIP_DFS_CH_MAX       (1)
 
+#define CFG_DEFER_IMPS_FOR_TIME_NAME                         "gDeferIMPStime"
+#define CFG_DEFER_IMPS_FOR_TIME_MIN                          (0)
+#define CFG_DEFER_IMPS_FOR_TIME_MAX                          (500)
+#define CFG_DEFER_IMPS_FOR_TIME_DEFAULT                      (200)
+
+
 /*--------------------------------------------------------------------------- 
   Type declarations
   -------------------------------------------------------------------------*/ 
@@ -2578,6 +2584,7 @@ typedef struct
    v_U32_t                     pmfSaQueryRetryInterval;
 #endif
    v_BOOL_t                    initialScanSkipDFSCh;
+   v_U32_t                     deferImpsTime;
 } hdd_config_t;
 /*--------------------------------------------------------------------------- 
   Function declarations and documenation
