@@ -5091,12 +5091,8 @@ eHalStatus sme_InitChannels(tHalHandle hHal)
         return status;
     }
 
-    status = sme_AcquireGlobalLock(&pMac->sme);
-    if (HAL_STATUS_SUCCESS(status))
-    {
-        status = csrInitChannels(pMac);
-        sme_ReleaseGlobalLock(&pMac->sme);
-    }
+    status = csrInitChannels(pMac);
+
     return status;
 }
 
