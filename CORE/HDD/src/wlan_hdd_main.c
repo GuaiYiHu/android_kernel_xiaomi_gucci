@@ -196,6 +196,8 @@ static VOS_STATUS hdd_parse_ccx_beacon_req(tANI_U8 *pValue,
 
 #define WLAN_PRIV_DATA_MAX_LEN 4096
 
+static VOS_STATUS wlan_hdd_init_channels_for_cc(hdd_context_t *pHddCtx);
+
 /*
  * Driver miracast parameters 0-Disabled
  * 1-Source, 2-Sink
@@ -8287,28 +8289,11 @@ int hdd_wlan_startup(struct device *dev )
       goto err_vosclose;
    }
 
-#ifdef CONFIG_ENABLE_LINUX_REG
-   /* registration of wiphy dev with cfg80211 */
-   if (0 > wlan_hdd_cfg80211_register(wiphy))
-   {
-       hddLog(VOS_TRACE_LEVEL_ERROR,"%s: wiphy register failed", __func__);
-       goto err_vosclose;
-   }
-
-    status = wlan_hdd_init_channels(pHddCtx);
-   if ( !VOS_IS_STATUS_SUCCESS( status ) )
-   {
-      hddLog(VOS_TRACE_LEVEL_FATAL, "%s: wlan_hdd_init_channels failed",
-             __func__);
-      goto err_wiphy_unregister;
-   }
-#endif
-
    status = vos_preStart( pHddCtx->pvosContext );
    if ( !VOS_IS_STATUS_SUCCESS( status ) )
    {
       hddLog(VOS_TRACE_LEVEL_FATAL, "%s: vos_preStart failed", __func__);
-      goto err_wiphy_unregister;
+      goto err_vosclose;
    }
 
    if (0 == enable_dfs_chan_scan || 1 == enable_dfs_chan_scan)
@@ -8332,7 +8317,7 @@ int hdd_wlan_startup(struct device *dev )
    if ( VOS_STATUS_SUCCESS != status )
    {
       hddLog(VOS_TRACE_LEVEL_FATAL, "%s: Failed hdd_set_sme_config", __func__);
-      goto err_wiphy_unregister;
+      goto err_vosclose;
    }
 
    //Initialize the WMM module
@@ -8340,7 +8325,7 @@ int hdd_wlan_startup(struct device *dev )
    if (!VOS_IS_STATUS_SUCCESS(status))
    {
       hddLog(VOS_TRACE_LEVEL_FATAL, "%s: hdd_wmm_init failed", __func__);
-      goto err_wiphy_unregister;
+      goto err_vosclose;
    }
 
    /* In the integrated architecture we update the configuration from
@@ -8351,7 +8336,7 @@ int hdd_wlan_startup(struct device *dev )
    if (FALSE == hdd_update_config_dat(pHddCtx))
    {
       hddLog(VOS_TRACE_LEVEL_FATAL,"%s: config update failed",__func__ );
-      goto err_wiphy_unregister;
+      goto err_vosclose;
    }
 
    // Get mac addr from platform driver
@@ -8433,7 +8418,7 @@ int hdd_wlan_startup(struct device *dev )
       {
          hddLog(VOS_TRACE_LEVEL_ERROR,"%s: Failed to set MAC Address. "
                 "HALStatus is %08d [x%08x]",__func__, halStatus, halStatus );
-         goto err_wiphy_unregister;
+         goto err_vosclose;
       }
    }
 
@@ -8443,7 +8428,7 @@ int hdd_wlan_startup(struct device *dev )
    if ( !VOS_IS_STATUS_SUCCESS( status ) )
    {
       hddLog(VOS_TRACE_LEVEL_FATAL,"%s: vos_start failed",__func__);
-      goto err_wiphy_unregister;
+      goto err_vosclose;
    }
 
 #ifdef FEATURE_WLAN_CH_AVOID
@@ -8473,6 +8458,31 @@ int hdd_wlan_startup(struct device *dev )
    {
        hddLog(VOS_TRACE_LEVEL_ERROR,"%s: wiphy register failed", __func__);
        goto err_vosstop;
+   }
+#endif
+
+#ifdef CONFIG_ENABLE_LINUX_REG
+   status = wlan_hdd_init_channels(pHddCtx);
+   if ( !VOS_IS_STATUS_SUCCESS( status ) )
+   {
+      hddLog(VOS_TRACE_LEVEL_FATAL, "%s: wlan_hdd_init_channels failed",
+             __func__);
+      goto err_vosstop;
+   }
+
+   /* registration of wiphy dev with cfg80211 */
+   if (0 > wlan_hdd_cfg80211_register(wiphy))
+   {
+       hddLog(VOS_TRACE_LEVEL_ERROR,"%s: wiphy register failed", __func__);
+       goto err_vosstop;
+   }
+
+   status = wlan_hdd_init_channels_for_cc(pHddCtx);
+   if ( !VOS_IS_STATUS_SUCCESS( status ) )
+   {
+      hddLog(VOS_TRACE_LEVEL_FATAL, "%s: wlan_hdd_init_channels_for_cc failed",
+             __func__);
+      goto err_unregister_wiphy;
    }
 #endif
 
@@ -8775,18 +8785,10 @@ err_bap_close:
 
 err_close_adapter:
    hdd_close_all_adapters( pHddCtx );
-
-#ifndef CONFIG_ENABLE_LINUX_REG
+err_unregister_wiphy:
    wiphy_unregister(wiphy) ;
-#endif
-
 err_vosstop:
    vos_stop(pVosContext);
-
-err_wiphy_unregister:
-#ifdef CONFIG_ENABLE_LINUX_REG
-   wiphy_unregister(wiphy);
-#endif
 
 err_vosclose:
    status = vos_sched_close( pVosContext );
@@ -9677,6 +9679,22 @@ static VOS_STATUS wlan_hdd_init_channels(hdd_context_t *pHddCtx)
    }
 }
 
+static VOS_STATUS wlan_hdd_init_channels_for_cc(hdd_context_t *pHddCtx)
+{
+   eHalStatus status;
+
+   status = sme_InitChannelsForCC(pHddCtx->hHal);
+   if (HAL_STATUS_SUCCESS(status))
+   {
+      return VOS_STATUS_SUCCESS;
+   }
+   else
+   {
+      hddLog(VOS_TRACE_LEVEL_FATAL,"%s: Issue reg hint failed(%d)",
+             __func__, status);
+      return VOS_STATUS_E_FAULT;
+   }
+}
 /*
  * API to find if there is any STA or P2P-Client is connected
  */
