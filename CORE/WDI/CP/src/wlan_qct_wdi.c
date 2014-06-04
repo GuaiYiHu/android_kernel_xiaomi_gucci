@@ -1111,6 +1111,7 @@ static char *WDI_getRespMsgString(wpt_uint16 wdiRespMsgId)
     CASE_RETURN_STRING( WDI_SET_BATCH_SCAN_RESP);
 #endif
     CASE_RETURN_STRING( WDI_UPDATE_CHAN_RESP);
+    CASE_RETURN_STRING( WDI_CH_SWITCH_RESP_V1 );
     default:
         return "Unknown WDI MessageId";
   }
@@ -1214,6 +1215,9 @@ void WDI_TraceHostFWCapabilities(tANI_U32 *capabilityBitmap)
                           break;
                      case FW_IN_TX_PATH: snprintf(pCapStr, sizeof("FW_IN_TX_PATH"), "%s", "FW_IN_TX_PATH");
                           pCapStr += strlen("FW_IN_TX_PATH");
+                          break;
+                     case CH_SWITCH_V1: snprintf(pCapStr, sizeof("CH_SWITCH_V1"), "%s", "CH_SWITCH_V1");
+                          pCapStr += strlen("CH_SWITCH_V1");
                           break;
                  }
                  *pCapStr++ = ',';
@@ -23530,6 +23534,9 @@ case WLAN_HAL_DEL_STA_SELF_RSP:
 
   case WLAN_HAL_PRINT_REG_INFO_IND:
     return  WDI_PRINT_REG_INFO_IND;
+
+  case WLAN_HAL_CH_SWITCH_V1_RSP:
+    return WDI_CH_SWITCH_RESP_V1;
 
   default:
     return eDRIVER_TYPE_MAX;
