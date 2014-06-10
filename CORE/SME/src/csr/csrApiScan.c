@@ -3204,13 +3204,9 @@ static void csrMoveTempScanResultsToMainList( tpAniSirGlobal pMac, tANI_U8 reaso
                 pSession = CSR_GET_SESSION( pMac, i );
                 if (csrIsConnStateConnected(pMac, i))
                 {
-                    if (csrIsBssidMatch(pMac, (tCsrBssid *)&pMac->scan.currentCountryBssid,
-                                        &pSession->connectedProfile.bssid))
-                    {
-                        smsLog(pMac, LOGW, FL("No need for updating CC, we will"
-                                              "continue with current AP's CC"));
-                        goto end;
-                    }
+                    smsLog(pMac, LOGW, FL("No need for updating CC, we will"
+                                          "continue with current AP's CC"));
+                    goto end;
                 }
             }
         }
