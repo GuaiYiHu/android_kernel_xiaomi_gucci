@@ -7807,7 +7807,7 @@ static tPmkidCacheInfo PMKIDCache[MAX_PMKSAIDS_IN_CACHE]; // HDD local cache
 static tANI_U32 PMKIDCacheIndex; // HDD local Cache index
 
 
-static int wlan_hdd_cfg80211_set_pmksa(struct wiphy *wiphy, struct net_device *dev,
+static int __wlan_hdd_cfg80211_set_pmksa(struct wiphy *wiphy, struct net_device *dev,
             struct cfg80211_pmksa *pmksa)
 {
     tANI_U32 j=0;
@@ -7898,9 +7898,20 @@ static int wlan_hdd_cfg80211_set_pmksa(struct wiphy *wiphy, struct net_device *d
     return 0;
 }
 
+static int wlan_hdd_cfg80211_set_pmksa(struct wiphy *wiphy, struct net_device *dev,
+            struct cfg80211_pmksa *pmksa)
+{
+   int ret;
+
+   vos_ssr_protect(__func__);
+   ret = __wlan_hdd_cfg80211_set_pmksa(wiphy, dev, pmksa);
+   vos_ssr_unprotect(__func__);
+
+   return ret;
+}
 
 
-static int wlan_hdd_cfg80211_del_pmksa(struct wiphy *wiphy, struct net_device *dev,
+static int __wlan_hdd_cfg80211_del_pmksa(struct wiphy *wiphy, struct net_device *dev,
              struct cfg80211_pmksa *pmksa)
 {
     tANI_U32 j=0;
@@ -8002,8 +8013,20 @@ static int wlan_hdd_cfg80211_del_pmksa(struct wiphy *wiphy, struct net_device *d
 }
 
 
+static int wlan_hdd_cfg80211_del_pmksa(struct wiphy *wiphy, struct net_device *dev,
+             struct cfg80211_pmksa *pmksa)
+{
+    int ret;
 
-static int wlan_hdd_cfg80211_flush_pmksa(struct wiphy *wiphy, struct net_device *dev)
+    vos_ssr_protect(__func__);
+    ret = __wlan_hdd_cfg80211_del_pmksa(wiphy, dev, pmksa);
+    vos_ssr_unprotect(__func__);
+
+    return ret;
+
+}
+
+static int __wlan_hdd_cfg80211_flush_pmksa(struct wiphy *wiphy, struct net_device *dev)
 {
     tANI_U32 j=0;
     hdd_adapter_t *pAdapter = WLAN_HDD_GET_PRIV_PTR(dev);
@@ -8062,6 +8085,17 @@ static int wlan_hdd_cfg80211_flush_pmksa(struct wiphy *wiphy, struct net_device 
 
     PMKIDCacheIndex = 0;
     return status;
+}
+
+static int wlan_hdd_cfg80211_flush_pmksa(struct wiphy *wiphy, struct net_device *dev)
+{
+    int ret;
+
+    vos_ssr_protect(__func__);
+    ret = __wlan_hdd_cfg80211_flush_pmksa(wiphy, dev);
+    vos_ssr_unprotect(__func__);
+
+    return ret;
 }
 #endif
 
