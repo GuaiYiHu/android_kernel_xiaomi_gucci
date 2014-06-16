@@ -2380,6 +2380,18 @@ dump_lim_get_pkts_rcvd_per_rssi_values( tpAniSirGlobal pMac, tANI_U32 arg1, tANI
 }
 #endif
 
+static char *
+dump_set_max_probe_req(tpAniSirGlobal pMac, tANI_U32 arg1, tANI_U32 arg2,
+             tANI_U32 arg3, tANI_U32 arg4, char *p)
+{
+    if ((arg1 <= 0) || (arg1 > 4)){
+       limLog(pMac, LOGE,
+           FL("invalid number. valid range 1 - 4 \n"));
+       return p;
+    }
+    pMac->lim.maxProbe = arg1;
+    return p;
+}
 /* API to fill Rate Info based on mac efficiency
  * arg 1: mac efficiency to be used to calculate mac thorughput for a given rate index
  * arg 2: starting rateIndex to apply the macEfficiency to
@@ -2467,13 +2479,14 @@ static tDumpFuncEntry limMenuDumpTable[] = {
     {370,   "PE.LIM: pkts/rssi: : iwpriv wlan0 dump 369 <staId> <boolean to flush counter>",    dump_lim_get_pkts_rcvd_per_rssi_values},
 #endif
     {373,   "PE.LIM: MAS RX stats MAC eff <MAC eff in percentage>",  dump_limRateInfoBasedOnMacEff},
+    {376,   "PE.LIM: max number of probe per scan", dump_set_max_probe_req },
 };
 
 
 
 void limDumpInit(tpAniSirGlobal pMac)
 {
-    logDumpRegisterTable( pMac, &limMenuDumpTable[0], 
+    logDumpRegisterTable( pMac, &limMenuDumpTable[0],
                           sizeof(limMenuDumpTable)/sizeof(limMenuDumpTable[0]) );
 }
 

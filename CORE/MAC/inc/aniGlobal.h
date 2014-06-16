@@ -924,7 +924,6 @@ tLimMlmOemDataRsp       *gpLimMlmOemDataRsp;
     tSirDFSChannelList    dfschannelList;
     tANI_U8 deauthMsgCnt;
     tANI_U8 gLimIbssStaLimit;
-
     // Flag to debug remain on channel
     tANI_BOOLEAN gDebugP2pRemainOnChannel;
     /* Sequence number to keep track of
@@ -932,6 +931,8 @@ tLimMlmOemDataRsp       *gpLimMlmOemDataRsp;
      * debug marker frame.
      */
     tANI_U32 remOnChnSeqNum;
+    tANI_U8 probeCounter;
+    tANI_U8 maxProbe;
 } tAniSirLim, *tpAniSirLim;
 
 typedef struct sLimMgmtFrameRegistration
