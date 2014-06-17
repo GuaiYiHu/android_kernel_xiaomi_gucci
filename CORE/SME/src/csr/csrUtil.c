@@ -6635,3 +6635,20 @@ VOS_STATUS csrAddToChannelListFront(
     return eHAL_STATUS_SUCCESS;
 }
 #endif
+const char * sme_requestTypetoString(const v_U8_t requestType)
+{
+    switch (requestType)
+    {
+        CASE_RETURN_STRING( eCSR_SCAN_REQUEST_11D_SCAN );
+        CASE_RETURN_STRING( eCSR_SCAN_REQUEST_FULL_SCAN );
+        CASE_RETURN_STRING( eCSR_SCAN_IDLE_MODE_SCAN );
+        CASE_RETURN_STRING( eCSR_SCAN_HO_BG_SCAN );
+        CASE_RETURN_STRING( eCSR_SCAN_HO_PROBE_SCAN );
+        CASE_RETURN_STRING( eCSR_SCAN_HO_NT_BG_SCAN );
+        CASE_RETURN_STRING( eCSR_SCAN_P2P_DISCOVERY );
+        CASE_RETURN_STRING( eCSR_SCAN_SOFTAP_CHANNEL_RANGE );
+        CASE_RETURN_STRING( eCSR_SCAN_P2P_FIND_PEER );
+        default:
+            return "Unknown Scan Request Type";
+    }
+}
