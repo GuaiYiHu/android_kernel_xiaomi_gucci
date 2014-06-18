@@ -494,9 +494,11 @@ typedef enum
   /* Send Rate Update Indication */
   WDI_RATE_UPDATE_IND,
 
+  /* csa channel switch req*/
+  WDI_CH_SWITCH_REQ_V1,
+
   /*Keep adding the indications to the max request
     such that we keep them sepparate */
-
   WDI_MAX_UMAC_IND
 }WDI_RequestEnumType;
 
@@ -760,6 +762,10 @@ typedef enum
   WDI_UPDATE_CHAN_RESP                          = 86,
 
   WDI_SET_MAX_TX_POWER_PER_BAND_RSP             = 87,
+
+  /* channel switch resp v1*/
+  WDI_CH_SWITCH_RESP_V1                         = 88,
+
   /*-------------------------------------------------------------------------
     Indications
      !! Keep these last in the enum if possible
@@ -2040,6 +2046,24 @@ WDI_ProcessChannelSwitchReq
   WDI_ControlBlockType*  pWDICtx,
   WDI_EventInfoType*     pEventData
 );
+
+/**
+ @brief Process Channel Switch Request function (called when
+        Main FSM allows it)
+
+ @param  pWDICtx:         pointer to the WLAN DAL context
+         pEventData:      pointer to the event information structure
+
+ @see
+ @return Result of the function call
+*/
+
+WDI_Status WDI_ProcessChannelSwitchReq_V1
+(
+  WDI_ControlBlockType*  pWDICtx,
+  WDI_EventInfoType*     pEventData
+);
+
 
 /**
  @brief Process Config STA Request function (called when Main FSM 
@@ -3528,6 +3552,22 @@ WDI_ProcessChannelSwitchRsp
   WDI_EventInfoType*     pEventData
 );
 
+/**
+ @brief Process Channel Switch Rsp function (called when a response
+        is being received over the bus from HAL)
+
+ @param  pWDICtx:         pointer to the WLAN DAL context
+         pEventData:      pointer to the event information structure
+
+ @see
+ @return Result of the function call
+*/
+WDI_Status
+WDI_ProcessChannelSwitchRsp_V1
+(
+  WDI_ControlBlockType*  pWDICtx,
+  WDI_EventInfoType*     pEventData
+);
 
 /**
  @brief Process Config STA Rsp function (called when a response
