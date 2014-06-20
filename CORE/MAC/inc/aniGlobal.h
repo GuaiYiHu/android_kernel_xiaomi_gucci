@@ -667,6 +667,8 @@ typedef struct sAniSirLim
 #ifdef FEATURE_WLAN_TDLS
     tANI_U8 gLimTDLSBufStaEnabled;
     tANI_U8 gLimTDLSUapsdMask;
+    // TDLS WMM Mode
+    tANI_U8 gLimTDLSWmmMode;
 #endif
 
 

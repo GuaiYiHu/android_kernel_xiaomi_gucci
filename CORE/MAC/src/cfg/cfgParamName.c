@@ -341,6 +341,7 @@ unsigned char *gCfgParamName[] = {
     (unsigned char *)"PMF_SA_QUERY_MAX_RETRIES",
     (unsigned char *)"PMF_SA_QUERY_RETRY_INTERVAL",
     (unsigned char *)"BTC_CTS2S_DURING_SCO",
+    (unsigned char *)"TDLS_WMM_MODE_ENABLED",
 };
 
 
