@@ -3241,4 +3241,6 @@ const char * sme_requestTypetoString(const v_U8_t requestType);
            to string.
  ---------------------------------------------------------------------------*/
 const char * sme_PmcStatetoString(const v_U8_t pmcState);
+
+tANI_BOOLEAN  sme_Is11dCountrycode(tHalHandle hHal);
 #endif //#if !defined( __SME_API_H )
