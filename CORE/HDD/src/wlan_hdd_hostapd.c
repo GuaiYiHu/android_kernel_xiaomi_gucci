@@ -1386,6 +1386,19 @@ static iw_softap_setparam(struct net_device *dev,
                 WLANSAP_SetMode(pVosContext, set_value);
             }
             break;
+
+        case QCSAP_PARAM_SET_AUTO_CHANNEL:
+            if ((0 != set_value) && (1 != set_value))
+            {
+                hddLog(LOGE, FL("Invalid setAutoChannel value %d"), set_value);
+                ret = -EINVAL;
+            }
+            else
+            {
+                (WLAN_HDD_GET_CTX(pHostapdAdapter))->cfg_ini->apAutoChannelSelection = set_value;
+            }
+            break;
+
         case QCSAP_PARAM_MAX_ASSOC:
             if (WNI_CFG_ASSOC_STA_LIMIT_STAMIN > set_value)
             {
@@ -3421,6 +3434,8 @@ static const struct iw_priv_args hostapd_private_args[] = {
       IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,    "getwlandbg" },
   { QCSAP_PARAM_AUTO_CHANNEL, 0,
       IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,    "getAutoChannel" },
+  { QCSAP_PARAM_SET_AUTO_CHANNEL,
+      IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1, 0, "setAutoChannel" },
   { QCSAP_PARAM_MODULE_DOWN_IND, 0,
       IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,    "moduleDownInd" },
   { QCSAP_PARAM_CLR_ACL, 0,
@@ -3604,7 +3619,6 @@ VOS_STATUS hdd_init_ap_mode( hdd_adapter_t *pAdapter )
     hdd_context_t *pHddCtx = WLAN_HDD_GET_CTX(pAdapter);
     VOS_STATUS status;
 #ifdef FEATURE_WLAN_CH_AVOID
-    v_CONTEXT_t pVosContext = (WLAN_HDD_GET_CTX(pAdapter))->pvosContext;
     v_U16_t unsafeChannelList[NUM_20MHZ_RF_CHANNELS];
     v_U16_t unsafeChannelCount;
 #endif /* FEATURE_WLAN_CH_AVOID */
@@ -3623,7 +3637,7 @@ VOS_STATUS hdd_init_ap_mode( hdd_adapter_t *pAdapter )
     VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
               "%s : Unsafe Channel count %d",
               __func__, unsafeChannelCount);
-    hdd_hostapd_update_unsafe_channel_list(pVosContext,
+    hdd_hostapd_update_unsafe_channel_list(pHddCtx,
                                   unsafeChannelList,
                                   unsafeChannelCount);
 #endif /* FEATURE_WLAN_CH_AVOID */

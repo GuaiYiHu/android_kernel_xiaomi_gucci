@@ -858,7 +858,7 @@ int wlan_hdd_cfg80211_init(struct device *dev,
     wiphy->signal_type = CFG80211_SIGNAL_TYPE_MBM;
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38))
-    wiphy->max_remain_on_channel_duration = 1000;
+    wiphy->max_remain_on_channel_duration = 5000;
 #endif
 
     wiphy->n_vendor_commands = 0;
