@@ -3864,7 +3864,6 @@ void limProcessSwitchChannelRsp(tpAniSirGlobal pMac,  void *body)
     //Store this value to use in TPC report IE.
     rrmCacheMgmtTxPower( pMac, pChnlParams->txMgmtPower, psessionEntry );
 #endif
-    vos_mem_free(body);
     channelChangeReasonCode = psessionEntry->channelChangeReasonCode;
     // initialize it back to invalid id
     psessionEntry->channelChangeReasonCode = 0xBAD;
@@ -3912,6 +3911,9 @@ void limProcessSwitchChannelRsp(tpAniSirGlobal pMac,  void *body)
         default:
             break;
     }
+    vos_mem_free(body);
+    body = NULL;
+
 }
 /**
  * limProcessStartScanRsp()
@@ -4089,8 +4091,6 @@ void limProcessFinishScanRsp(tpAniSirGlobal pMac,  void *body)
     SET_LIM_PROCESS_DEFD_MESGS(pMac, true);
     pFinishScanParam = (tpFinishScanParams) body;
     status = pFinishScanParam->status;
-    vos_mem_free(body);
-    body = NULL;
 
     limLog(pMac, LOG1, FL("Rcvd FinishScanRsp in state %d channel %d "),
                           pMac->lim.gLimHalScanState,
@@ -4135,6 +4135,8 @@ void limProcessFinishScanRsp(tpAniSirGlobal pMac,  void *body)
             else
             {
                limLog( pMac, LOGP, "No Resume link callback set but station is in suspend state");
+               vos_mem_free(body);
+               body = NULL;
                return;
             }
             break;
@@ -4145,6 +4147,8 @@ void limProcessFinishScanRsp(tpAniSirGlobal pMac,  void *body)
                         pMac->lim.gLimHalScanState);
             break;
     }
+    vos_mem_free(body);
+    body = NULL;
     return;
 }
 /**
