@@ -2158,6 +2158,11 @@ This feature requires the dependent cfg.ini "gRoamPrefer5GHz" set to 1 */
 #define CFG_ROAMING_DFS_CHANNEL_MAX                 (1)
 #define CFG_ROAMING_DFS_CHANNEL_DEFAULT             (0)
 
+#define CFG_BURST_MODE_BE_TXOP_VALUE           "gBurstModeTXOPValue"
+#define CFG_BURST_MODE_BE_TXOP_VALUE_MIN       ( 0 )
+#define CFG_BURST_MODE_BE_TXOP_VALUE_MAX       ( 12288 )
+#define CFG_BURST_MODE_BE_TXOP_VALUE_DEFAULT   ( 0 )
+
 /*--------------------------------------------------------------------------- 
   Type declarations
   -------------------------------------------------------------------------*/ 
@@ -2607,6 +2612,7 @@ typedef struct
    char                        overrideCountryCode[4];
    v_BOOL_t                    advertiseConcurrentOperation;
    v_U8_t                      allowDFSChannelRoam;
+   v_U32_t                     burstModeTXOPValue;
 } hdd_config_t;
 /*--------------------------------------------------------------------------- 
   Function declarations and documenation

@@ -4856,3 +4856,14 @@ LIM
 V    RW    NP
 LIM
 0    1    0
+
+*
+* BURST MODE BE TXOP Value
+*
+WNI_CFG_BURST_MODE_BE_TXOP_VALUE    I    4    7
+V    RW    NP
+HAL
+0    12288    0
+V    RW    NP
+HAL
+0    12288    0
