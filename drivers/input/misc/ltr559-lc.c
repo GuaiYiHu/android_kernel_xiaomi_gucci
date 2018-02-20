@@ -314,11 +314,6 @@ static int ltr559_ps_enable(struct i2c_client *client, int on)
 	struct ltr559_data *data = i2c_get_clientdata(client);
 	int ret=0;
 	int contr_data;
-#ifdef CONFIG_VENDOR_XIAOMI
-	ktime_t	timestamp;
-
-	timestamp = ktime_get_boottime();
-#endif
 	if (on) {
 		ltr559_set_ps_threshold(client, LTR559_PS_THRES_LOW_0, 0);
 		ltr559_set_ps_threshold(client, LTR559_PS_THRES_UP_0, data->platform_data->prox_threshold);
@@ -339,12 +334,6 @@ static int ltr559_ps_enable(struct i2c_client *client, int on)
 		ltr559_ps_dynamic_caliberate(&data->ps_cdev);
 		printk("%s, report ABS_DISTANCE=%s\n",__func__, data->ps_state ? "far" : "near");
 		input_report_abs(data->input_dev_ps, ABS_DISTANCE, data->ps_state);
-#ifdef CONFIG_VENDOR_XIAOMI
-		input_event(data->input_dev_ps, EV_SYN, SYN_TIME_SEC,
-				ktime_to_timespec(timestamp).tv_sec);
-		input_event(data->input_dev_ps, EV_SYN, SYN_TIME_NSEC,
-				ktime_to_timespec(timestamp).tv_nsec);
-#endif
 	} else {
 		ret = i2c_smbus_write_byte_data(client, LTR559_PS_CONTR, MODE_PS_StdBy);
 		if(ret<0){
@@ -443,15 +432,9 @@ static void ltr559_ps_work_func(struct work_struct *work)
 	int als_ps_status;
 	int psdata;
 	int j = 0;
-#ifdef CONFIG_VENDOR_XIAOMI
-	ktime_t	timestamp;
-#endif
 
 	mutex_lock(&data->op_lock);
 
-#ifdef CONFIG_VENDOR_XIAOMI
-	timestamp = ktime_get_boottime();
-#endif
 	als_ps_status = i2c_smbus_read_byte_data(client, LTR559_ALS_PS_STATUS);
 	if (als_ps_status < 0)
 			goto workout;
@@ -502,12 +485,6 @@ static void ltr559_ps_work_func(struct work_struct *work)
 		if((ps_state_last != data->ps_state) || (data->ps_state == 0))
 		{
 			input_report_abs(data->input_dev_ps, ABS_DISTANCE, data->ps_state);
-#ifdef CONFIG_VENDOR_XIAOMI
-			input_event(data->input_dev_ps, EV_SYN, SYN_TIME_SEC,
-					ktime_to_timespec(timestamp).tv_sec);
-			input_event(data->input_dev_ps, EV_SYN, SYN_TIME_NSEC,
-					ktime_to_timespec(timestamp).tv_nsec);
-#endif
 			input_sync(data->input_dev_ps);
 			printk("%s, report ABS_DISTANCE=%s\n",__func__, data->ps_state ? "far" : "near");
 
@@ -531,15 +508,9 @@ static void ltr559_als_work_func(struct work_struct *work)
 	struct i2c_client *client=data->client;
 	int als_ps_status;
 	int als_data;
-#ifdef CONFIG_VENDOR_XIAOMI
-	ktime_t	timestamp;
-#endif
 
 	mutex_lock(&data->op_lock);
 
-#ifdef CONFIG_VENDOR_XIAOMI
-	timestamp = ktime_get_boottime();
-#endif
 	if(!data->als_open_state)
 		goto workout;
 
@@ -556,12 +527,6 @@ static void ltr559_als_work_func(struct work_struct *work)
 		if ((als_data >= 0) && (als_data != data->last_lux)) {
 			data->last_lux = als_data;
 			input_report_abs(data->input_dev_als, ABS_MISC, als_data);
-#ifdef CONFIG_VENDOR_XIAOMI
-			input_event(data->input_dev_als, EV_SYN, SYN_TIME_SEC,
-					ktime_to_timespec(timestamp).tv_sec);
-			input_event(data->input_dev_als, EV_SYN, SYN_TIME_NSEC,
-					ktime_to_timespec(timestamp).tv_nsec);
-#endif
 			input_sync(data->input_dev_als);
 		}
 	}
