@@ -53,10 +53,10 @@ static void led_gpio_brightness_set(struct led_classdev *led_cdev,
 
 	if (brightness > LED_HALF) {
 		flash_en = 1;
-		flash_now = 1;
-	} else if (brightness > LED_OFF) {
-		flash_en = 1;
 		flash_now = 0;
+	} else if (brightness > LED_OFF) {
+		flash_en = 0;
+		flash_now = 1;
 	} else {
 		flash_en = 0;
 		flash_now = 0;
