@@ -336,6 +336,7 @@ struct mxt_data {
 	char *fw_name;
 	char *cfg_name;
 	bool alt_chip;
+	bool keys_off;
 
 	/* Cached parameters from object table */
 	u16 T5_address;
@@ -1773,6 +1774,10 @@ static void mxt_proc_t15_messages(struct mxt_data *data, u8 *msg)
 	bool curr_state, new_state;
 	bool sync = false;
 	unsigned long keystates = le32_to_cpu(msg[2]);
+
+	if(data->keys_off) {
+		return;
+	}
 
 	/* do not report events if input device not yet registered */
 	if (!input_dev)
@@ -4614,6 +4619,36 @@ out:
 	return ret;
 }
 
+static ssize_t mxt_keys_off_show(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	struct mxt_data *data = dev_get_drvdata(dev);
+	int count;
+	char c;
+
+	c = data->keys_off ? '1' : '0';
+	count = sprintf(buf, "%c\n", c);
+
+	return count;
+}
+
+static ssize_t mxt_keys_off_store(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct mxt_data *data = dev_get_drvdata(dev);
+	int i;
+
+	if (sscanf(buf, "%u", &i) == 1 && i < 2) {
+		data->keys_off = (i == 1);
+
+		dev_dbg(dev, "%s\n", i ? "hw keys off" : "hw keys on");
+		return count;
+	} else {
+		dev_dbg(dev, "keys_off write error\n");
+		return -EINVAL;
+	}
+}
+
 static ssize_t mxt_debug_enable_show(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -4758,6 +4793,8 @@ static DEVICE_ATTR(update_fw, S_IWUSR /*| S_IWGRP | S_IWOTH */, NULL, mxt_update
 static DEVICE_ATTR(update_cfg, S_IWUSR/* | S_IWGRP | S_IWOTH */, NULL, mxt_update_cfg_store);
 static DEVICE_ATTR(debug_v2_enable, S_IWUSR | S_IRUSR/*S_IRWXUGO*/, NULL, mxt_debug_v2_enable_store);
 static DEVICE_ATTR(debug_notify, S_IRUGO, mxt_debug_notify_show, NULL);
+static DEVICE_ATTR(keys_off, S_IWUSR | S_IRUSR, mxt_keys_off_show,
+			mxt_keys_off_store);
 static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
 			mxt_debug_enable_store);
 static DEVICE_ATTR(bootloader, S_IWUSR | S_IRUSR, mxt_bootloader_show,
@@ -4798,6 +4835,7 @@ static struct attribute *mxt_attrs[] = {
 	&dev_attr_debug_enable.attr,
 	&dev_attr_debug_v2_enable.attr,
 	&dev_attr_debug_notify.attr,
+	&dev_attr_keys_off.attr,
 	&dev_attr_bootloader.attr,
 	&dev_attr_t19.attr,
 	&dev_attr_t25.attr,
