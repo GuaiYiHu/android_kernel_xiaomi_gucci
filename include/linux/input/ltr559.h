@@ -1,6 +1,7 @@
 /* Lite-On LTR-559ALS Linux Driver
 *
 * Copyright (C) 2011 Lite-On Technology Corp (Singapore)
+* Copyright (C) 2016 XiaoMi, Inc.
 *
 * This program is distributed in the hope that it will be useful, but
 * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,7 +19,6 @@ struct ltr559_platform_data {
 
 	unsigned int int_gpio;
 	unsigned int irq_gpio_flags;
-	unsigned int prox_default_noise;
 };
 
 /* POWER SUPPLY VOLTAGE RANGE */
@@ -74,8 +74,8 @@ struct ltr559_platform_data {
 #define ALS_RANGE1_320			1
 #define ALS_RANGE2_64K			2
 
-#define PS_DETECTED_THRES		200 //0x00ff//0x00E0
-#define PS_UNDETECTED_THRES		180 //0x00ef//0x0046
+#define PS_DETECTED_THRES		200
+#define PS_UNDETECTED_THRES		180
 
 /* Power On response time in ms */
 #define PON_DELAY			600
