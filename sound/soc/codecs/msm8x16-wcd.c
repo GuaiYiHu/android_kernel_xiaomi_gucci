@@ -4323,9 +4323,7 @@ static const struct snd_soc_dapm_route audio_map[] = {
 	{"IIR2 INP1 MUX", "DEC2", "DEC2 MUX"},
 	{"MIC BIAS Internal1", NULL, "INT_LDO_H"},
 	{"MIC BIAS Internal2", NULL, "INT_LDO_H"},
-#if defined(CONFIG_MACH_LONGCHEER) || defined(CONFIG_MACH_SPIRIT)
 	{"MIC BIAS Internal3", NULL, "INT_LDO_H"},
-#endif
 	{"MIC BIAS External", NULL, "INT_LDO_H"},
 	{"MIC BIAS External2", NULL, "INT_LDO_H"},
 	{"MIC BIAS Internal1", NULL, "MICBIAS_REGULATOR"},
