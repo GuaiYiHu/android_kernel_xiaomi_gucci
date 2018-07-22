@@ -52,3 +52,4 @@ obj-$(CONFIG_COMPAT) += mdss_compat_utils.o
 obj-$(CONFIG_YL_TPS65132) += tps_65132.o
 
 obj-$(CONFIG_FB_MSM_MDSS) += mdss_livedisplay.o
+obj-$(CONFIG_FB_MSM_MDSS_DSI_CTRL_STATUS) += dsi_panel_esd.o

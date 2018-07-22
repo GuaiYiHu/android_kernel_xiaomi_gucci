@@ -948,6 +948,9 @@ void mdss_dsi_cmd_bta_sw_trigger(struct mdss_panel_data *pdata)
 
 	pr_debug("%s: BTA done, status = %d\n", __func__, status);
 }
+#ifdef CONFIG_FB_MSM_MDSS_DSI_CTRL_STATUS
+extern int dsi_oem_panel_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata);
+#endif
 
 static int mdss_dsi_read_status(struct mdss_dsi_ctrl_pdata *ctrl)
 {
@@ -1120,7 +1123,9 @@ void mdss_dsi_ctrl_setup(struct mdss_dsi_ctrl_pdata *ctrl)
 int mdss_dsi_bta_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 {
 	int ret = 0;
+#ifndef CONFIG_FB_MSM_MDSS_DSI_CTRL_STATUS
 	unsigned long flag;
+#endif
 
 	if (ctrl_pdata == NULL) {
 		pr_err("%s: Invalid input data\n", __func__);
@@ -1134,7 +1139,9 @@ int mdss_dsi_bta_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 	}
 
 	pr_debug("%s: Checking BTA status\n", __func__);
-
+#ifdef CONFIG_FB_MSM_MDSS_DSI_CTRL_STATUS
+	ret = dsi_oem_panel_status_check(ctrl_pdata);
+#else
 	mdss_dsi_clk_ctrl(ctrl_pdata, DSI_ALL_CLKS, 1);
 	spin_lock_irqsave(&ctrl_pdata->mdp_lock, flag);
 	INIT_COMPLETION(ctrl_pdata->bta_comp);
@@ -1151,6 +1158,7 @@ int mdss_dsi_bta_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 	}
 
 	mdss_dsi_clk_ctrl(ctrl_pdata, DSI_ALL_CLKS, 0);
+#endif
 	pr_debug("%s: BTA done with ret: %d\n", __func__, ret);
 
 	return ret;

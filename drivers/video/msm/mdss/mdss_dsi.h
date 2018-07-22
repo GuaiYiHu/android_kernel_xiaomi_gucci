@@ -90,6 +90,7 @@ enum dsi_panel_bl_ctrl {
 	BL_PWM,
 	BL_WLED,
 	BL_DCS_CMD,
+	BL_GPIO,
 	UNKNOWN_CTRL,
 };
 
@@ -351,6 +352,7 @@ struct mdss_dsi_ctrl_pdata {
 	bool pwm_pmi;
 	int pwm_period;
 	int pwm_pmic_gpio;
+	int pulse_gpio;
 	int pwm_lpg_chan;
 	int bklt_max;
 	int new_fps;
@@ -392,6 +394,13 @@ struct mdss_dsi_ctrl_pdata {
 
 	struct dsi_panel_cmds status_cmds;
 	u32 status_cmds_rlen;
+
+    struct dsi_panel_cmds ceon_cmds;
+	struct dsi_panel_cmds ceoff_cmds;
+	struct dsi_panel_cmds warm_cmds;
+	struct dsi_panel_cmds cold_cmds;
+	struct dsi_panel_cmds default_cmds;
+
 	u32 status_value;
 	u32 status_error_count;
 

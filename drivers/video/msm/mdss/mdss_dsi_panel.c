@@ -24,8 +24,15 @@
 
 #include "mdss_dsi.h"
 #include "mdss_livedisplay.h"
+#include "mdss_panel.h"
 
 #define DT_CMD_HDR 6
+#define LCM_SUPPORT_READ_VERSION
+#ifdef LCM_SUPPORT_READ_VERSION
+char g_lcm_id[128];
+#endif
+static DEFINE_SPINLOCK(bl_lock);
+
 
 /* NT35596 panel specific status variables */
 #define NT35596_BUF_3_STATUS 0x02
@@ -54,7 +61,51 @@ void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
 	}
 	ctrl->pwm_enabled = 0;
 }
+static void mdss_dsi_panel_pulse_set(struct mdss_dsi_ctrl_pdata *ctrl, int on)
+{
+	if (on) {
+		gpio_set_value(ctrl->pulse_gpio, 0);
+		udelay(10);
+		gpio_set_value(ctrl->pulse_gpio, 1);
+		udelay(30);
+	} else {
+		gpio_set_value(ctrl->pulse_gpio, 0);
+		udelay(30);
+		gpio_set_value(ctrl->pulse_gpio, 1);
+		udelay(10);
 
+	}
+}
+static void mdss_dsi_panel_gpio_ctrl(struct mdss_dsi_ctrl_pdata *ctrl, int level)
+{
+	int idx;
+	unsigned long flags;
+
+	if (level > 63)
+		level = 63;
+
+
+
+	spin_lock_irqsave(&bl_lock, flags);
+	gpio_direction_output(ctrl->pulse_gpio, 1);
+	udelay(15);
+	mdss_dsi_panel_pulse_set(ctrl, 0);
+	mdss_dsi_panel_pulse_set(ctrl, 0);
+	for (idx = 5; idx >= 0; idx--) {
+		if (!(level & (1 << idx))) {
+			mdss_dsi_panel_pulse_set(ctrl, 1);
+		} else {
+			mdss_dsi_panel_pulse_set(ctrl, 0);
+		}
+	}
+	gpio_set_value(ctrl->pulse_gpio, 0);
+	udelay(10);
+	gpio_set_value(ctrl->pulse_gpio, 1);
+	udelay(500);
+	spin_unlock_irqrestore(&bl_lock, flags);
+
+
+}
 static void mdss_dsi_panel_bklt_pwm(struct mdss_dsi_ctrl_pdata *ctrl, int level)
 {
 	int ret;
@@ -254,6 +305,7 @@ static void mdss_dsi_panel_bklt_dcs(struct mdss_dsi_ctrl_pdata *ctrl, int level)
 static int mdss_dsi_request_gpios(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 {
 	int rc = 0;
+	static int first_on=1;
 
 	if (gpio_is_valid(ctrl_pdata->disp_en_gpio)) {
 		rc = gpio_request(ctrl_pdata->disp_en_gpio,
@@ -264,11 +316,14 @@ static int mdss_dsi_request_gpios(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 			goto disp_en_gpio_err;
 		}
 	}
-	rc = gpio_request(ctrl_pdata->rst_gpio, "disp_rst_n");
-	if (rc) {
-		pr_err("request reset gpio failed, rc=%d\n",
-			rc);
-		goto rst_gpio_err;
+	if (first_on) {
+		first_on = 0;
+		rc = gpio_request(ctrl_pdata->rst_gpio, "disp_rst_n");
+		if (rc) {
+			pr_err("request reset gpio failed, rc=%d\n",
+				rc);
+			goto rst_gpio_err;
+		}
 	}
 	if (gpio_is_valid(ctrl_pdata->bklt_en_gpio)) {
 		rc = gpio_request(ctrl_pdata->bklt_en_gpio,
@@ -371,8 +426,6 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 			gpio_set_value((ctrl_pdata->disp_en_gpio), 0);
 			gpio_free(ctrl_pdata->disp_en_gpio);
 		}
-		gpio_set_value((ctrl_pdata->rst_gpio), 0);
-		gpio_free(ctrl_pdata->rst_gpio);
 		if (gpio_is_valid(ctrl_pdata->mode_gpio))
 			gpio_free(ctrl_pdata->mode_gpio);
 	}
@@ -591,6 +644,11 @@ static void mdss_dsi_panel_bl_ctrl(struct mdss_panel_data *pdata,
 		return;
 	}
 
+	if (!mdss_panel_get_boot_cfg()) {
+		bl_level = 0;
+		pr_err("%s: not found LCD in lk,set bl_level to 0\n", __func__);
+		}
+
 	ctrl_pdata = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 
@@ -633,6 +691,9 @@ static void mdss_dsi_panel_bl_ctrl(struct mdss_panel_data *pdata,
 			if (sctrl)
 				mdss_dsi_panel_bklt_dcs(sctrl, bl_level);
 		}
+		break;
+	case BL_GPIO:
+		mdss_dsi_panel_gpio_ctrl(ctrl_pdata, bl_level);
 		break;
 	default:
 		pr_err("%s: Unknown bl_ctrl configuration\n",
@@ -1666,6 +1727,13 @@ static int mdss_panel_parse_dt(struct device_node *np,
 			ctrl_pdata->bklt_ctrl = BL_DCS_CMD;
 			pr_debug("%s: Configured DCS_CMD bklt ctrl\n",
 								__func__);
+		} else if (!strncmp(data, "bl_ctrl_gpio", 12)) {
+			ctrl_pdata->bklt_ctrl = BL_GPIO;
+			tmp = of_get_named_gpio(np,
+				"qcom,mdss-dsi-pulse-gpio", 0);
+			pr_info("pulse gpio is %u\n", tmp);
+			ctrl_pdata->pulse_gpio = tmp;
+			gpio_request(ctrl_pdata->pulse_gpio, "lcd_bl");
 		}
 	}
 	rc = of_property_read_u32(np, "qcom,mdss-brightness-max-level", &tmp);
@@ -1843,6 +1911,16 @@ static int mdss_panel_parse_dt(struct device_node *np,
 	mdss_dsi_parse_backlight_response_curve(np,
 			"qcom,panel-backlight-response-curve");
 #endif
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->ceon_cmds,
+		"ceon-command", "qcom,mdss-extra-command-state");
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->ceoff_cmds,
+		"ceoff-command", "qcom,mdss-extra-command-state");
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->warm_cmds,
+		"warm-command", "qcom,mdss-extra-command-state");
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->default_cmds,
+		"default-command", "qcom,mdss-extra-command-state");
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->cold_cmds,
+		"cold-command", "qcom,mdss-extra-command-state");
 
 	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->status_cmds,
 			"qcom,mdss-dsi-panel-status-command",
@@ -1903,6 +1981,53 @@ error:
 	return -EINVAL;
 }
 
+
+#ifdef LCM_SUPPORT_READ_VERSION
+static int mdss_panel_parse_panel_name(struct device_node *node)
+{
+	const char *name;
+
+	name = of_get_property(node,
+
+						"qcom,mdss-dsi-panel-name", NULL);
+	strcpy(g_lcm_id, name);
+	return 0;
+}
+
+static ssize_t msm_fb_lcd_name(struct device *dev,
+				  struct device_attribute *attr, char *buf)
+{
+	ssize_t ret = 0;
+
+	sprintf(buf, "%s\n", g_lcm_id);
+	ret = strlen(buf) + 1;
+
+	return ret;
+}
+
+static DEVICE_ATTR(lcd_name, 0644, msm_fb_lcd_name, NULL);
+
+static struct kobject *msm_lcd_name;
+static int msm_lcd_name_create_sysfs(void)
+{
+	int ret ;
+
+	msm_lcd_name = kobject_create_and_add("android_lcd", NULL);
+	if (msm_lcd_name == NULL) {
+		pr_info("msm_lcd_name_create_sysfs	failed!\n");
+		ret = -ENOMEM;
+		return ret ;
+	}
+
+	ret = sysfs_create_file(msm_lcd_name, &dev_attr_lcd_name.attr);
+	if (ret) {
+		pr_info("%s failed\n",__func__);
+		kobject_del(msm_lcd_name);
+	}
+	return 0 ;
+}
+#endif
+
 int mdss_dsi_panel_init(struct device_node *node,
 	struct mdss_dsi_ctrl_pdata *ctrl_pdata,
 	bool cmd_cfg_cont_splash)
@@ -1928,6 +2053,14 @@ int mdss_dsi_panel_init(struct device_node *node,
 		pr_info("%s: Panel Name = %s\n", __func__, panel_name);
 		strlcpy(&pinfo->panel_name[0], panel_name, MDSS_MAX_PANEL_LEN);
 	}
+#ifdef LCM_SUPPORT_READ_VERSION
+		rc = mdss_panel_parse_panel_name(node);
+		if (rc) {
+			pr_err("fail to parse panel label\n");
+			return rc;
+		}
+#endif
+
 	rc = mdss_panel_parse_dt(node, ctrl_pdata);
 	if (rc) {
 		pr_err("%s:%d panel dt parse failed\n", __func__, __LINE__);
@@ -1949,5 +2082,8 @@ int mdss_dsi_panel_init(struct device_node *node,
 	ctrl_pdata->panel_data.set_backlight = mdss_dsi_panel_bl_ctrl;
 	ctrl_pdata->switch_mode = mdss_dsi_panel_switch_mode;
 
+#ifdef LCM_SUPPORT_READ_VERSION
+		msm_lcd_name_create_sysfs();
+#endif
 	return 0;
 }
