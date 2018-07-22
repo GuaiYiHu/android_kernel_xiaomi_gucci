@@ -42,8 +42,7 @@
 			   SND_JACK_OC_HPHR | SND_JACK_LINEOUT | \
 			   SND_JACK_UNSUPPORTED)
 #define WCD_MBHC_JACK_BUTTON_MASK (SND_JACK_BTN_0 | SND_JACK_BTN_1 | \
-				  SND_JACK_BTN_2 | SND_JACK_BTN_3 | \
-				  SND_JACK_BTN_4)
+				  SND_JACK_BTN_2)
 #define OCP_ATTEMPT 1
 #define HS_DETECT_PLUG_TIME_MS (3 * 1000)
 #define SPECIAL_HS_DETECT_TIME_MS (2 * 1000)
@@ -1391,6 +1390,7 @@ static int wcd_mbhc_get_button_mask(u16 btn)
 	default:
 		break;
 	}
+	pr_debug("%s : mask = %d, btn = %d \n", __func__, mask, btn);
 	return mask;
 }
 
@@ -1628,8 +1628,6 @@ irqreturn_t wcd_mbhc_btn_press_handler(int irq, void *data)
 	pr_debug("%s: enter\n", __func__);
 	WCD_MBHC_RSC_LOCK(mbhc);
 	/* send event to sw intr handler*/
-	mbhc->is_btn_press = true;
-	wake_up_interruptible(&mbhc->wait_btn_press);
 	if (wcd_swch_level_remove(mbhc)) {
 		pr_debug("%s: Switch level is low ", __func__);
 		goto done;
@@ -1661,6 +1659,8 @@ irqreturn_t wcd_mbhc_btn_press_handler(int irq, void *data)
 				__func__);
 		goto done;
 	}
+	mbhc->is_btn_press = true;
+	wake_up_interruptible(&mbhc->wait_btn_press);
 	result1 = snd_soc_read(codec, MSM8X16_WCD_A_ANALOG_MBHC_BTN_RESULT);
 	mask = wcd_mbhc_get_button_mask(result1);
 	mbhc->buttons_pressed |= mask;
@@ -2045,6 +2045,13 @@ int wcd_mbhc_init(struct wcd_mbhc *mbhc, struct snd_soc_codec *codec,
 		ret = snd_jack_set_key(mbhc->button_jack.jack,
 				       SND_JACK_BTN_4,
 				       KEY_VOLUMEDOWN);
+		ret = ret & snd_jack_set_key(mbhc->button_jack.jack,
+				       SND_JACK_BTN_1,
+				       KEY_NEXTSONG);
+		ret = ret & snd_jack_set_key(mbhc->button_jack.jack,
+				       SND_JACK_BTN_2,
+				       KEY_PREVIOUSSONG);
+
 		if (ret) {
 			pr_err("%s: Failed to set code for btn-0\n",
 				__func__);
