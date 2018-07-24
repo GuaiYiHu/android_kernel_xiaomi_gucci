@@ -51,6 +51,9 @@
 #include <linux/qcom_iommu.h>
 #include <linux/msm_iommu_domains.h>
 
+#ifdef CONFIG_VENDOR_XIAOMI
+#include "mdss_dsi.h"
+#endif
 #include "mdss_fb.h"
 #include "mdss_mdp_splash_logo.h"
 
@@ -684,6 +687,70 @@ static ssize_t mdss_fb_get_doze_mode(struct device *dev,
 	return scnprintf(buf, PAGE_SIZE, "%d\n", mfd->doze_mode);
 }
 
+#ifdef CONFIG_VENDOR_XIAOMI
+extern void mdss_dsi_panel_cmds_send(struct mdss_dsi_ctrl_pdata *ctrl,
+			struct dsi_panel_cmds *pcmds);
+static ssize_t mdss_fb_set_dispparam(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct fb_info *fbi = dev_get_drvdata(dev);
+	struct msm_fb_data_type *mfd = fbi->par;
+	struct mdss_panel_data *pdata;
+	struct mdss_dsi_ctrl_pdata *ctrl = NULL;
+	int rc = 0;
+	int param = 0;
+	int temp;
+
+	rc = kstrtoint(buf, 10, &param);
+	if (rc) {
+		pr_err("kstrtoint failed. rc=%d\n", rc);
+		return rc;
+	}
+	pr_info("cmd: %d\n", param);
+	pdata = dev_get_platdata(&mfd->pdev->dev);
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+				panel_data);
+	temp = param & 0x000000F0;
+	switch (temp) {
+	case 0x10:
+		if (ctrl->ceon_cmds.cmd_cnt) {
+			pr_info("enable ce: %d\n", ctrl->ceon_cmds.cmd_cnt);
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->ceon_cmds);
+		}
+		break;
+	case 0xF0:
+		if (ctrl->ceoff_cmds.cmd_cnt) {
+			pr_info("enable off:%d\n", ctrl->ceoff_cmds.cmd_cnt);
+				mdss_dsi_panel_cmds_send(ctrl, &ctrl->ceoff_cmds);
+		}
+		break;
+	default:
+		break;
+	}
+	temp = param & 0x0000000F;
+	switch (temp) {
+	case 0x1:
+		if (ctrl->warm_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->warm_cmds);
+		break;
+	case 0x2:
+		if (ctrl->default_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->default_cmds);
+		break;
+	case 0x3:
+		if (ctrl->cold_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->cold_cmds);
+		break;
+	default:
+		pr_err("unknow cmds: %d\n", param);
+		break;
+	}
+
+
+	return count;
+}
+#endif
+
 static DEVICE_ATTR(msm_fb_type, S_IRUGO, mdss_fb_get_type, NULL);
 static DEVICE_ATTR(msm_fb_split, S_IRUGO | S_IWUSR, mdss_fb_show_split,
 					mdss_fb_store_split);
@@ -700,6 +767,9 @@ static DEVICE_ATTR(always_on, S_IRUGO | S_IWUSR | S_IWGRP,
 	mdss_fb_get_doze_mode, mdss_fb_set_doze_mode);
 static DEVICE_ATTR(msm_fb_panel_status, S_IRUGO,
 	mdss_fb_get_panel_status, NULL);
+#ifdef CONFIG_VENDOR_XIAOMI
+static DEVICE_ATTR(msm_fb_dispparam, 0644, NULL, mdss_fb_set_dispparam);
+#endif
 static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_type.attr,
 	&dev_attr_msm_fb_split.attr,
@@ -711,6 +781,9 @@ static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_thermal_level.attr,
 	&dev_attr_always_on.attr,
 	&dev_attr_msm_fb_panel_status.attr,
+#ifdef CONFIG_VENDOR_XIAOMI
+	&dev_attr_msm_fb_dispparam.attr,
+#endif
 	NULL,
 };
 

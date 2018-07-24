@@ -90,6 +90,9 @@ enum dsi_panel_bl_ctrl {
 	BL_PWM,
 	BL_WLED,
 	BL_DCS_CMD,
+#ifdef CONFIG_VENDOR_XIAOMI
+	BL_GPIO,
+#endif
 	UNKNOWN_CTRL,
 };
 
@@ -362,6 +365,9 @@ struct mdss_dsi_ctrl_pdata {
 	bool pwm_pmi;
 	int pwm_period;
 	int pwm_pmic_gpio;
+#ifdef CONFIG_VENDOR_XIAOMI
+	int pulse_gpio;
+#endif
 	int pwm_lpg_chan;
 	int bklt_max;
 	int new_fps;
@@ -395,6 +401,15 @@ struct mdss_dsi_ctrl_pdata {
 	struct dsi_panel_status_regs status_regs;
 #endif
 	u32 status_cmds_rlen;
+
+#ifdef CONFIG_VENDOR_XIAOMI
+	struct dsi_panel_cmds ceon_cmds;
+	struct dsi_panel_cmds ceoff_cmds;
+	struct dsi_panel_cmds warm_cmds;
+	struct dsi_panel_cmds cold_cmds;
+	struct dsi_panel_cmds default_cmds;
+#endif
+
 	u32 status_value;
 	u32 status_error_count;
 
