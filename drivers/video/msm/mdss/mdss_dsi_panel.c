@@ -24,8 +24,18 @@
 
 #include "mdss_dsi.h"
 #include "mdss_livedisplay.h"
+#ifdef CONFIG_VENDOR_XIAOMI
+#include "mdss_panel.h"
+#endif
 
 #define DT_CMD_HDR 6
+#ifdef CONFIG_VENDOR_XIAOMI
+#define LCM_SUPPORT_READ_VERSION
+#ifdef LCM_SUPPORT_READ_VERSION
+char g_lcm_id[128];
+#endif
+static DEFINE_SPINLOCK(bl_lock);
+#endif
 
 #ifdef CONFIG_MACH_LONGCHEER
 #define LCM_SUPPORT_READ_VERSION
@@ -62,7 +72,53 @@ void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
 	}
 	ctrl->pwm_enabled = 0;
 }
+#ifdef CONFIG_VENDOR_XIAOMI
+static void mdss_dsi_panel_pulse_set(struct mdss_dsi_ctrl_pdata *ctrl, int on)
+{
+	if (on) {
+		gpio_set_value(ctrl->pulse_gpio, 0);
+		udelay(10);
+		gpio_set_value(ctrl->pulse_gpio, 1);
+		udelay(30);
+	} else {
+		gpio_set_value(ctrl->pulse_gpio, 0);
+		udelay(30);
+		gpio_set_value(ctrl->pulse_gpio, 1);
+		udelay(10);
 
+	}
+}
+static void mdss_dsi_panel_gpio_ctrl(struct mdss_dsi_ctrl_pdata *ctrl, int level)
+{
+	int idx;
+	unsigned long flags;
+
+	if (level > 63)
+		level = 63;
+
+
+
+	spin_lock_irqsave(&bl_lock, flags);
+	gpio_direction_output(ctrl->pulse_gpio, 1);
+	udelay(15);
+	mdss_dsi_panel_pulse_set(ctrl, 0);
+	mdss_dsi_panel_pulse_set(ctrl, 0);
+	for (idx = 5; idx >= 0; idx--) {
+		if (!(level & (1 << idx))) {
+			mdss_dsi_panel_pulse_set(ctrl, 1);
+		} else {
+			mdss_dsi_panel_pulse_set(ctrl, 0);
+		}
+	}
+	gpio_set_value(ctrl->pulse_gpio, 0);
+	udelay(10);
+	gpio_set_value(ctrl->pulse_gpio, 1);
+	udelay(500);
+	spin_unlock_irqrestore(&bl_lock, flags);
+
+
+}
+#endif
 static void mdss_dsi_panel_bklt_pwm(struct mdss_dsi_ctrl_pdata *ctrl, int level)
 {
 	int ret;
@@ -264,6 +320,9 @@ static void mdss_dsi_panel_bklt_dcs(struct mdss_dsi_ctrl_pdata *ctrl, int level)
 static int mdss_dsi_request_gpios(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 {
 	int rc = 0;
+#ifdef CONFIG_VENDOR_XIAOMI
+	static int first_on=1;
+#endif
 
 	if (gpio_is_valid(ctrl_pdata->disp_en_gpio)) {
 		rc = gpio_request(ctrl_pdata->disp_en_gpio,
@@ -274,12 +333,24 @@ static int mdss_dsi_request_gpios(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 			goto disp_en_gpio_err;
 		}
 	}
+#ifdef CONFIG_VENDOR_XIAOMI
+	if (first_on) {
+		first_on = 0;
+		rc = gpio_request(ctrl_pdata->rst_gpio, "disp_rst_n");
+		if (rc) {
+			pr_err("request reset gpio failed, rc=%d\n",
+				rc);
+			goto rst_gpio_err;
+		}
+	}
+#else
 	rc = gpio_request(ctrl_pdata->rst_gpio, "disp_rst_n");
 	if (rc) {
 		pr_err("request reset gpio failed, rc=%d\n",
 			rc);
 		goto rst_gpio_err;
 	}
+#endif
 	if (gpio_is_valid(ctrl_pdata->bklt_en_gpio)) {
 		rc = gpio_request(ctrl_pdata->bklt_en_gpio,
 						"bklt_enable");
@@ -381,8 +452,11 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 			gpio_set_value((ctrl_pdata->disp_en_gpio), 0);
 			gpio_free(ctrl_pdata->disp_en_gpio);
 		}
+#ifdef CONFIG_VENDOR_XIAOMI
+#else
 		gpio_set_value((ctrl_pdata->rst_gpio), 0);
 		gpio_free(ctrl_pdata->rst_gpio);
+#endif
 		if (gpio_is_valid(ctrl_pdata->mode_gpio))
 			gpio_free(ctrl_pdata->mode_gpio);
 	}
@@ -601,6 +675,13 @@ static void mdss_dsi_panel_bl_ctrl(struct mdss_panel_data *pdata,
 		return;
 	}
 
+#ifdef CONFIG_VENDOR_XIAOMI
+	if (!mdss_panel_get_boot_cfg()) {
+		bl_level = 0;
+		pr_err("%s: not found LCD in lk,set bl_level to 0\n", __func__);
+		}
+#endif
+
 	ctrl_pdata = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 
@@ -644,6 +725,11 @@ static void mdss_dsi_panel_bl_ctrl(struct mdss_panel_data *pdata,
 				mdss_dsi_panel_bklt_dcs(sctrl, bl_level);
 		}
 		break;
+#ifdef CONFIG_VENDOR_XIAOMI
+	case BL_GPIO:
+		mdss_dsi_panel_gpio_ctrl(ctrl_pdata, bl_level);
+		break;
+#endif
 	default:
 		pr_err("%s: Unknown bl_ctrl configuration\n",
 			__func__);
@@ -1844,6 +1930,15 @@ static int mdss_panel_parse_dt(struct device_node *np,
 			ctrl_pdata->bklt_ctrl = BL_DCS_CMD;
 			pr_debug("%s: Configured DCS_CMD bklt ctrl\n",
 								__func__);
+#ifdef CONFIG_VENDOR_XIAOMI
+		} else if (!strncmp(data, "bl_ctrl_gpio", 12)) {
+			ctrl_pdata->bklt_ctrl = BL_GPIO;
+			tmp = of_get_named_gpio(np,
+				"qcom,mdss-dsi-pulse-gpio", 0);
+			pr_info("pulse gpio is %u\n", tmp);
+			ctrl_pdata->pulse_gpio = tmp;
+			gpio_request(ctrl_pdata->pulse_gpio, "lcd_bl");
+#endif
 		}
 	}
 	rc = of_property_read_u32(np, "qcom,mdss-brightness-max-level", &tmp);
@@ -2009,6 +2104,18 @@ static int mdss_panel_parse_dt(struct device_node *np,
 	mdss_dsi_parse_backlight_response_curve(np,
 			"qcom,panel-backlight-response-curve");
 #endif
+#ifdef CONFIG_VENDOR_XIAOMI
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->ceon_cmds,
+		"ceon-command", "qcom,mdss-extra-command-state");
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->ceoff_cmds,
+		"ceoff-command", "qcom,mdss-extra-command-state");
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->warm_cmds,
+		"warm-command", "qcom,mdss-extra-command-state");
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->default_cmds,
+		"default-command", "qcom,mdss-extra-command-state");
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->cold_cmds,
+		"cold-command", "qcom,mdss-extra-command-state");
+#endif
 
 	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->status_cmds,
 			"qcom,mdss-dsi-panel-status-command",
@@ -2080,9 +2187,13 @@ static int mdss_panel_parse_panel_name(struct device_node *node)
 {
 	const char *name;
 
+#ifdef CONFIG_VENDOR_XIAOMI
+	name = of_get_property(node,
+						"qcom,mdss-dsi-panel-name", NULL);
+#else
 	name = of_get_property(node,
 						//"label", NULL);
-						"qcom,mdss-dsi-panel-name", NULL);
+#endif
 	strcpy(g_lcm_id, name);
 	return 0;
 }
