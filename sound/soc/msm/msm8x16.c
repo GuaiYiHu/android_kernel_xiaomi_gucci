@@ -1858,6 +1858,17 @@ static void *def_msm8x16_wcd_mbhc_cal(void)
 	btn_high[3] = 112;
 	btn_low[4] = 137;
 	btn_high[4] = 137;
+#elif defined(CONFIG_VENDOR_XIAOMI)
+	btn_low[0] = 0;
+	btn_high[0] = 50;
+	btn_low[1] = 50;
+	btn_high[1] = 200;
+	btn_low[2] = 200;
+	btn_high[2] = 500;
+	btn_low[3] = 500;
+	btn_high[3] = 512;
+	btn_low[4] = 512;
+	btn_high[4] = 524;
 #else
 	btn_low[0] = 75;
 	btn_high[0] = 75;
