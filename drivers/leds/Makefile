@@ -57,7 +57,11 @@ obj-$(CONFIG_LEDS_RENESAS_TPU)		+= leds-renesas-tpu.o
 obj-$(CONFIG_LEDS_MAX8997)		+= leds-max8997.o
 obj-$(CONFIG_LEDS_LM355x)		+= leds-lm355x.o
 obj-$(CONFIG_LEDS_BLINKM)		+= leds-blinkm.o
+ifeq ($(CONFIG_VENDOR_XIAOMI),y)
+obj-$(CONFIG_LEDS_MSM_GPIO_FLASH)	+= leds-msm-gpio-flash-xiaomi.o
+else
 obj-$(CONFIG_LEDS_MSM_GPIO_FLASH)	+= leds-msm-gpio-flash.o
+endif
 obj-$(CONFIG_LEDS_MSM_GPIO_FLASH_CKT)	+= leds-msm-gpio-flash-ckt.o
 obj-$(CONFIG_LEDS_AW2013)		+= leds-aw2013.o
 
