@@ -60,7 +60,9 @@
 
 #include "atags.h"
 
-
+#ifdef CONFIG_VENDOR_XIAOMI
+int is_tp_driver_loaded = 0;
+#endif
 #if defined(CONFIG_FPE_NWFPE) || defined(CONFIG_FPE_FASTFPE)
 char fpe_type[8];
 
