@@ -50,12 +50,17 @@ obj-$(CONFIG_CHARGER_MANAGER)	+= charger-manager.o
 obj-$(CONFIG_CHARGER_MAX8997)	+= max8997_charger.o
 obj-$(CONFIG_CHARGER_MAX8998)	+= max8998_charger.o
 obj-$(CONFIG_CHARGER_BQ2415X)	+= bq2415x_charger.o
+obj-$(CONFIG_BATTERY_BQ2022A)   += bq2022a.o
 obj-$(CONFIG_POWER_AVS)		+= avs/
 obj-$(CONFIG_SMB349_USB_CHARGER)   += smb349-charger.o
 obj-$(CONFIG_SMB350_CHARGER)   += smb350_charger.o
 obj-$(CONFIG_SMB1351_USB_CHARGER) += smb1351-charger.o
 obj-$(CONFIG_SMB135X_CHARGER)   += smb135x-charger.o
+ifeq ($(CONFIG_VENDOR_XIAOMI),y)
+obj-$(CONFIG_SMB1360_CHARGER_FG) += smb1360-charger-fg-xiaomi.o
+else
 obj-$(CONFIG_SMB1360_CHARGER_FG) += smb1360-charger-fg.o
+endif
 obj-$(CONFIG_SMB358_CHARGER)	+= smb358-charger.o
 obj-$(CONFIG_BATTERY_BQ28400)	+= bq28400_battery.o
 obj-$(CONFIG_SMB137C_CHARGER)	+= smb137c-charger.o
