@@ -71,11 +71,19 @@ obj-$(CONFIG_BMP18X_I2C)		+= bmp18x-i2c.o
 obj-$(CONFIG_SENSORS_MMC3416X)		+= mmc3416x.o
 obj-$(CONFIG_SENSORS_MMC3X30)		+= mmc3x30.o
 obj-$(CONFIG_SENSORS_MMA8X5X)	  	+= mma8x5x.o
+ifeq ($(CONFIG_VENDOR_XIAOMI),y)
+obj-$(CONFIG_SENSORS_STK3X1X)		+= stk3x1x-xiaomi.o
+else
 obj-$(CONFIG_SENSORS_STK3X1X)		+= stk3x1x.o
+endif
 obj-$(CONFIG_SENSORS_CAPELLA_CM36283)	+= cm36283.o
 obj-$(CONFIG_SENSORS_MPU6050)		+= mpu6050.o
 obj-$(CONFIG_SENSORS_AKM8963)		+= akm8963.o
+ifeq ($(CONFIG_VENDOR_XIAOMI),y)
+obj-$(CONFIG_SENSORS_AKM09911)		+= akm09911-xiaomi.o
+else
 obj-$(CONFIG_SENSORS_AKM09911)		+= akm09911.o
+endif
 obj-$(CONFIG_SENSORS_ST480)		+= st480.o
 obj-$(CONFIG_SENSORS_LIS3DH)		+= lis3dh_acc.o
 obj-$(CONFIG_SENSORS_AP3426)		+= ap3426.o
@@ -88,6 +96,7 @@ obj-$(CONFIG_SENSORS_YL_PARAMS)		+= yl_sensor_params.o
 
 obj-$(CONFIG_SENSORS_BMA2X2)	+= bma2x2.o
 obj-$(CONFIG_SENSORS_LTR553)	+= ltr553.o
+obj-$(CONFIG_SENSORS_LSM6DS0)	+= lsm6ds0.o
 
 obj-$(CONFIG_SENSORS_BMM050)    += bmm050_driver.o bmm050.o
 obj-$(CONFIG_SENSORS_BMG)       += bmg160_driver.o bmg160.o
