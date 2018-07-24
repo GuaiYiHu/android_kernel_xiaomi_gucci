@@ -4357,14 +4357,14 @@ static const struct snd_soc_dapm_route audio_map[] = {
 	{"IIR2 INP1 MUX", "DEC2", "DEC2 MUX"},
 	{"MIC BIAS Internal1", NULL, "INT_LDO_H"},
 	{"MIC BIAS Internal2", NULL, "INT_LDO_H"},
-#if defined(CONFIG_MACH_LONGCHEER) || defined(CONFIG_MACH_SPIRIT)
+#if defined(CONFIG_MACH_LONGCHEER) || defined(CONFIG_MACH_SPIRIT) || defined(CONFIG_VENDOR_XIAOMI)
 	{"MIC BIAS Internal3", NULL, "INT_LDO_H"},
 #endif
 	{"MIC BIAS External", NULL, "INT_LDO_H"},
 	{"MIC BIAS External2", NULL, "INT_LDO_H"},
 	{"MIC BIAS Internal1", NULL, "MICBIAS_REGULATOR"},
 	{"MIC BIAS Internal2", NULL, "MICBIAS_REGULATOR"},
-#if defined(CONFIG_MACH_LONGCHEER) || defined(CONFIG_MACH_SPIRIT) || defined(CONFIG_MACH_T86519A1)
+#if defined(CONFIG_MACH_LONGCHEER) || defined(CONFIG_MACH_SPIRIT) || defined(CONFIG_MACH_T86519A1) || defined(CONFIG_VENDOR_XIAOMI)
 	{"MIC BIAS Internal3", NULL, "MICBIAS_REGULATOR"},
 #endif
 	{"MIC BIAS External", NULL, "MICBIAS_REGULATOR"},
