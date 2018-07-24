@@ -1671,6 +1671,10 @@ static int mdss_dsi_ctrl_remove(struct platform_device *pdev)
 			&ctrl_pdata->power_data[i]);
 	}
 
+#ifdef CONFIG_VENDOR_XIAOMI
+	gpio_free(ctrl_pdata->pulse_gpio);
+#endif
+
 	mfd = platform_get_drvdata(pdev);
 	msm_dss_iounmap(&ctrl_pdata->mmss_misc_io);
 	msm_dss_iounmap(&ctrl_pdata->phy_io);
