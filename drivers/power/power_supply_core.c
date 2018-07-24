@@ -17,6 +17,9 @@
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/power_supply.h>
+#ifdef CONFIG_VENDOR_XIAOMI
+#include <linux/notifier.h>
+#endif
 #include <linux/thermal.h>
 #include "power_supply.h"
 
@@ -25,6 +28,22 @@ struct class *power_supply_class;
 EXPORT_SYMBOL_GPL(power_supply_class);
 
 static struct device_type power_supply_dev_type;
+
+#ifdef CONFIG_VENDOR_XIAOMI
+static BLOCKING_NOTIFIER_HEAD(power_supply_chain);
+
+int register_power_supply_notifier(struct notifier_block *nb)
+{
+	return blocking_notifier_chain_register(&power_supply_chain, nb);
+}
+EXPORT_SYMBOL(register_power_supply_notifier);
+
+int unregister_power_supply_notifier(struct notifier_block *nb)
+{
+	return blocking_notifier_chain_unregister(&power_supply_chain, nb);
+}
+EXPORT_SYMBOL(unregister_power_supply_notifier);
+#endif
 
 static bool __power_supply_is_supplied_by(struct power_supply *supplier,
 					 struct power_supply *supply)
@@ -296,7 +315,9 @@ static void power_supply_changed_work(struct work_struct *work)
 				      __power_supply_changed_work);
 
 		power_supply_update_leds(psy);
-
+#ifdef CONFIG_VENDOR_XIAOMI
+		blocking_notifier_call_chain(&power_supply_chain, 0, NULL);
+#endif
 		kobject_uevent(&psy->dev->kobj, KOBJ_CHANGE);
 		spin_lock_irqsave(&psy->changed_lock, flags);
 	}
