@@ -38,7 +38,7 @@
 		qcom,mdss-dsi-h-left-border = <0>;
 		qcom,mdss-dsi-h-right-border = <0>;
 		qcom,mdss-dsi-v-top-border = <0>;
-		qcom,mdss-dsi-v-bottom-border = <10>;
+		qcom,mdss-dsi-v-bottom-border = <0>;
 		qcom,mdss-dsi-bpp = <24>;
 		qcom,mdss-dsi-underflow-color = <0xff>;
 		qcom,mdss-dsi-border-color = <0>;
@@ -292,6 +292,8 @@
 		qcom,mdss-dsi-bl-max-level = <64>;
 		qcom,mdss-dsi-dma-trigger = "trigger_sw";
 		qcom,mdss-dsi-mdp-trigger = "none";
+		qcom,mdss-dsi-lp11-init;
+		qcom,mdss-dsi-init-delay-us = <200>;
 		qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_gpio";
 		qcom,mdss-dsi-pulse-gpio = <&msm_gpio 98 0>;
 		qcom,mdss-dsi-reset-sequence = <1 20>, <0 20>, <1 120>;
