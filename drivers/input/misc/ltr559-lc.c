@@ -135,11 +135,7 @@ static  struct ltr559_reg reg_tbl[] = {
 				.name   = "ALS_CONTR",
 				.addr   = 0x80,
 				.defval = 0x00,
-#ifdef CONFIG_VENDOR_XIAOMI
-				.curval = 0x0D,
-#else
 				.curval = 0x19,
-#endif
 		},
 		{
 				.name = "PS_CONTR",
