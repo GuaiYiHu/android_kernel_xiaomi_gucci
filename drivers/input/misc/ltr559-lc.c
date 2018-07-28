@@ -125,6 +125,9 @@ static int ltr559_als_set_enable(struct sensors_classdev *sensors_cdev,
 		unsigned int enable);
 static int ltr559_ps_set_enable(struct sensors_classdev *sensors_cdev,
 		unsigned int enable);
+#ifdef CONFIG_VENDOR_XIAOMI
+static int ltr559_als_set_poll_delay(struct ltr559_data *data, unsigned int delay);
+#endif
 static ssize_t ltr559_ps_dynamic_caliberate(struct sensors_classdev *sensors_cdev);
 
 static  struct ltr559_reg reg_tbl[] = {
@@ -651,6 +654,36 @@ static ssize_t ltr559_store_enable_ps(struct device *dev,
 	return size;
 }
 
+#ifdef CONFIG_VENDOR_XIAOMI
+static ssize_t ltr559_show_poll_delay_als(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct ltr559_data *data = dev_get_drvdata(dev);
+
+	return sprintf(buf, "%u\n", data->platform_data->als_poll_interval);
+}
+
+static ssize_t ltr559_store_poll_delay_als(struct device *dev,
+				struct device_attribute *attr,
+				const char *buf, size_t size)
+{
+	/* If proximity work, then ALS must be enable */
+	unsigned long val;
+	char *after;
+	struct ltr559_data *data = dev_get_drvdata(dev);
+
+	val = simple_strtoul(buf, &after, 10);
+
+	printk(KERN_INFO "set 559 ALS sensor poll delay -> %ld\n", val);
+
+	mutex_lock(&data->lockw);
+	ltr559_als_set_poll_delay(data, val);
+	mutex_unlock(&data->lockw);
+
+	return size;
+}
+#endif
+
 static ssize_t ltr559_show_enable_als(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -775,10 +808,26 @@ static DEVICE_ATTR(enable_als_sensor, SYS_AUTHORITY, ltr559_show_enable_als,
 				ltr559_store_enable_als);
 static DEVICE_ATTR(enable, SYS_AUTHORITY, ltr559_show_enable_ps,
 				ltr559_store_enable_ps);
+#ifdef CONFIG_VENDOR_XIAOMI
+static DEVICE_ATTR(poll_delay, S_IRUGO|S_IWUSR|S_IWGRP, ltr559_show_poll_delay_als,
+				ltr559_store_poll_delay_als);
+#endif
 static DEVICE_ATTR(info, S_IRUGO, ltr559_driver_info_show, NULL);
 static DEVICE_ATTR(raw_adc, S_IRUGO, ltr559_show_adc_data, NULL);
 static DEVICE_ATTR(lux_adc, S_IRUGO, ltr559_show_lux_data, NULL);
 
+#ifdef CONFIG_VENDOR_XIAOMI
+static struct attribute *ltr559_attributes[] = {
+		&dev_attr_enable.attr,
+		&dev_attr_info.attr,
+		&dev_attr_enable_als_sensor.attr,
+		&dev_attr_poll_delay.attr,
+		&dev_attr_debug_regs.attr,
+		&dev_attr_raw_adc.attr,
+		&dev_attr_lux_adc.attr,
+		NULL,
+};
+#else
 static struct attribute *ltr559_attributes[] = {
 		&dev_attr_enable.attr,
 		&dev_attr_info.attr,
@@ -788,6 +837,7 @@ static struct attribute *ltr559_attributes[] = {
 		&dev_attr_lux_adc.attr,
 		NULL,
 };
+#endif
 
 static const struct attribute_group ltr559_attr_group = {
 		.attrs = ltr559_attributes,
