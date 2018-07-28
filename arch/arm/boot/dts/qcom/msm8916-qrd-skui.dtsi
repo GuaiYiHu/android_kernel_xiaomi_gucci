@@ -232,19 +232,20 @@
 		};
 	};
 
-	liteon@23 {
+	ltr@23 {
 		compatible = "ltr,ltr559";
 		reg = <0x23>;
-		pinctrl-names = "default", "sleep";
-		pinctrl-0 = <&ltr559_default>;
-		pinctrl-1 = <&ltr559_sleep>;
+		pinctrl-names = "default","sleep";
+		pinctrl-0 = <&ltr_default>;
+		pinctrl-1 = <&ltr_sleep>;
 		interrupt-parent = <&msm_gpio>;
 		interrupts = <113 0x2002>;
 		vdd-supply = <&pm8916_l17>;
 		vio-supply = <&pm8916_l6>;
+		liteon,intr = <113>;
 		ltr,irq-gpio = <&msm_gpio 113 0x2002>;
-		ltr,ps-threshold = <45>;
-		ltr,ps-hysteresis-threshold = <30>;
+		ltr,ps-threshold = <390>;
+		ltr,ps-hysteresis-threshold = <310>;
 		ltr,als-polling-time = <200>;
 	};
 

@@ -96,7 +96,11 @@ obj-$(CONFIG_SENSORS_YL_PARAMS)		+= yl_sensor_params.o
 
 obj-$(CONFIG_SENSORS_BMA2X2)	+= bma2x2.o
 obj-$(CONFIG_SENSORS_LTR553)	+= ltr553.o
+ifeq ($(CONFIG_VENDOR_XIAOMI),y)
+obj-$(CONFIG_SENSORS_LTR559)	+= ltr559-xiaomi.o
+else
 obj-$(CONFIG_SENSORS_LTR559)	+= ltr559-lc.o
+endif
 obj-$(CONFIG_SENSORS_LSM6DS0)	+= lsm6ds0.o
 
 ifeq ($(CONFIG_SENSORS_BMA2X2_ENABLE_INT1),y)
