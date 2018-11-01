@@ -95,7 +95,11 @@ module_param(lpm_disconnect_thresh , uint, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(lpm_disconnect_thresh,
 	"Delay before entering LPM on USB disconnect");
 
+#ifdef CONFIG_VENDOR_XIAOMI
+static bool floated_charger_enable = true;
+#else
 static bool floated_charger_enable;
+#endif
 module_param(floated_charger_enable , bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(floated_charger_enable,
 	"Whether to enable floated charger");
@@ -5442,6 +5446,11 @@ struct msm_otg_platform_data *msm_otg_dt_to_pdata(struct platform_device *pdev)
 	dev_info(&pdev->dev, "get otg5v_en_gpio = %d\n", pdata->otg5v_en_gpio);
 #endif
 
+#ifdef CONFIG_VENDOR_XIAOMI
+	pdata->usbid_switch_gpio = of_get_named_gpio(node, "qcom,usbid-switch", 0);
+	if (pdata->usbid_switch_gpio < 0)
+		pr_debug("usbid_switch_gpio is not available\n");
+#endif
 	pdata->l1_supported = of_property_read_bool(node,
 				"qcom,hsusb-l1-supported");
 	pdata->enable_ahb2ahb_bypass = of_property_read_bool(node,
@@ -5952,6 +5961,20 @@ static int msm_otg_probe(struct platform_device *pdev)
 		!motg->phy_irq) {
 
 		if (gpio_is_valid(motg->pdata->usb_id_gpio)) {
+#ifdef CONFIG_VENDOR_XIAOMI
+			if (gpio_is_valid(motg->pdata->usbid_switch_gpio)) {
+				ret = gpio_request(motg->pdata->usbid_switch_gpio,
+								"USBID_SIWTCH_GPIO");
+				if (ret == 0) {
+					gpio_direction_output(pdata->usbid_switch_gpio, 1);
+					gpio_set_value(pdata->usbid_switch_gpio, 1);
+				} else {
+					dev_err(&pdev->dev, "gpio req failed for USBID_SIWTCH_GPIO\n");
+					motg->pdata->usbid_switch_gpio = 0;
+				}
+			}
+#endif
+
 			/* usb_id_gpio request */
 			ret = gpio_request(motg->pdata->usb_id_gpio,
 							"USB_ID_GPIO");
