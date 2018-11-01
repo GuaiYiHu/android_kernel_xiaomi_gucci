@@ -328,6 +328,9 @@ struct msm_otg_platform_data {
 	bool enable_ahb2ahb_bypass;
 	bool disable_retention_with_vdd_min;
 	int usb_id_gpio;
+#ifdef CONFIG_VENDOR_XIAOMI
+	int usbid_switch_gpio;
+#endif
 	int hub_reset_gpio;
 	int switch_sel_gpio;
 	bool phy_dvdd_always_on;
